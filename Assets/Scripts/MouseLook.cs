@@ -14,7 +14,6 @@ public class MouseLook : MonoBehaviourPun
     float xRotation = 0f;
     float yRotation = 0f;
     private bool isSet;
-    [SerializeField] Camera cam;
 
     void Start()
     {
@@ -50,7 +49,6 @@ public class MouseLook : MonoBehaviourPun
         if (!isSet)
         {
             isSet = true;
-            cam.nearClipPlane = 0.5f;
             transform.position = faceFocusPoint.position;
             transform.rotation = faceFocusPoint.rotation;
             Vector3 eulerAngles = faceFocusPoint.localRotation.eulerAngles;
@@ -70,7 +68,6 @@ public class MouseLook : MonoBehaviourPun
         {
             transform.localPosition = originalPosition;
             transform.localRotation = originalRotation;
-            cam.nearClipPlane = 0.1f;
             isSet = false;
         }
     }
