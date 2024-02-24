@@ -92,7 +92,12 @@ public class PlayerMovement : MonoBehaviour
             velocity.y = -2f;
         }
 
-
+        if (Input.GetButton("Vertical") || Input.GetButton("Horizontal"))
+        {
+            newResetAngle = Quaternion.Euler(0, mainCamera.transform.eulerAngles.y, 0);
+            playerBody.transform.rotation = newResetAngle;
+            Animator.SetBool("IsWalking", true);
+        }
         else
         {
             Animator.SetBool("IsWalking", false);
