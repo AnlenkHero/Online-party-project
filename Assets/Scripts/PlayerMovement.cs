@@ -1,4 +1,5 @@
 ﻿using Photon.Pun;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Video;
 
@@ -18,7 +19,10 @@ public class PlayerMovement : MonoBehaviour
     public float groundDistance = 0.4f;
     public LayerMask groundMask;
 
-   [SerializeField] private Animator Animator;
+    public float rotationSpeed;
+    public Quaternion newResetAngle;
+
+    [SerializeField] private Animator Animator;
     Vector3 velocity;
     bool isGrounded;
     private bool isPraying;
@@ -54,12 +58,14 @@ public class PlayerMovement : MonoBehaviour
             audioSource.Play();
         }
     }
+
     [PunRPC]
     void TriggerDanceAnimation()
     {
         isPraying = true;
         Animator.SetTrigger("Dance");
-        GetComponentInChildren<MouseLook>().ToggleFaceFocus(true); // Assuming MouseLook is attached to a child of the player
+        GetComponentInChildren<MouseLook>()
+            .ToggleFaceFocus(true); // Assuming MouseLook is attached to a child of the player
     }
 
     public void OnDanceAnimationEnd()
@@ -67,6 +73,7 @@ public class PlayerMovement : MonoBehaviour
         isPraying = false;
         GetComponentInChildren<MouseLook>().ToggleFaceFocus(false); // Return camera control to normal
     }
+
     void Update()
     {
         if (!view.IsMine || isPraying)
@@ -81,10 +88,15 @@ public class PlayerMovement : MonoBehaviour
 
         if (isGrounded && velocity.y < 0)
         {
-            controller.slopeLimit = 45.0f;
+            //controller.slopeLimit = 45.0f;
             velocity.y = -2f;
         }
-        
+
+
+        else
+        {
+            Animator.SetBool("IsWalking", false);
+        }
 
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
@@ -98,7 +110,7 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetButtonDown("Jump") && isGrounded)
 
         {
-            controller.slopeLimit = 100.0f;
+            // controller.slopeLimit = 100.0f;
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
             Animator.SetTrigger("Jump");
         }
@@ -108,7 +120,7 @@ public class PlayerMovement : MonoBehaviour
 
         controller.Move(velocity * Time.deltaTime);
 
-        if(Input.GetKeyDown(KeyCode.F))
+        if (Input.GetKeyDown(KeyCode.F))
         {
             view.RPC("TriggerDanceAnimation", RpcTarget.All);
         }
@@ -123,6 +135,5 @@ public class PlayerMovement : MonoBehaviour
             Cursor.lockState = CursorLockMode.Locked;
             cursorLocked = true;
         }
-
     }
 }
