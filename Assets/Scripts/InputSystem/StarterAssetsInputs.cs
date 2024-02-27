@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -12,6 +13,8 @@ namespace StarterAssets
 		public Vector2 look;
 		public bool jump;
 		public bool sprint;
+		public bool pray;
+		public bool backFlip;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -42,6 +45,16 @@ namespace StarterAssets
 		public void OnSprint(InputValue value)
 		{
 			SprintInput(value.isPressed);
+		}
+
+		public void OnPray(InputValue value)
+		{
+			PrayInput(value.isPressed);
+		}
+		
+		public void OnBackFlip(InputValue value)
+		{
+			BackFlipInput(value.isPressed);
 		}
 #endif
 
@@ -74,6 +87,16 @@ namespace StarterAssets
 		private void SetCursorState(bool newState)
 		{
 			Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
+		}
+		
+		private void PrayInput(bool newPrayState)
+		{
+			pray = newPrayState;
+		}
+		
+		private void BackFlipInput(bool newBackFlipState)
+		{
+			backFlip = newBackFlipState;
 		}
 	}
 	
