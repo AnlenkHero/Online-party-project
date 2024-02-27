@@ -44,6 +44,7 @@ MonoBehaviour:
   - TriggerDanceAnimation
   - TriggerPrayAnimation
   - TriggerBackFlipAnimation
+  - TriggerKpop_DanceAnimation
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

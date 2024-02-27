@@ -15,6 +15,7 @@ namespace StarterAssets
 		public bool sprint;
 		public bool pray;
 		public bool backFlip;
+		public bool Kpop_Dance;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -55,6 +56,11 @@ namespace StarterAssets
 		public void OnBackFlip(InputValue value)
 		{
 			BackFlipInput(value.isPressed);
+		}
+		
+		public void OnKpop_Dance(InputValue value)
+		{
+			Kpop_DanceInput(value.isPressed);
 		}
 #endif
 
@@ -97,6 +103,11 @@ namespace StarterAssets
 		private void BackFlipInput(bool newBackFlipState)
 		{
 			backFlip = newBackFlipState;
+		}
+		
+		private void Kpop_DanceInput(bool newKpop_DanceState)
+		{
+			Kpop_Dance = newKpop_DanceState;
 		}
 	}
 	

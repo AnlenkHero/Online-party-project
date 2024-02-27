@@ -93,8 +93,9 @@ public class ThirdPersonController : MonoBehaviour
     private int _animIDMotionSpeed;
     private int _animIDPraying;
     private int _animIDBackFlip;
+    private int _animIDKpop_Dance;
     private bool _hasAnimator;
-    private bool _isAnimationPlaying;
+    public bool _isAnimationPlaying;
 
 #if ENABLE_INPUT_SYSTEM
     private PlayerInput _playerInput;
@@ -185,6 +186,7 @@ public class ThirdPersonController : MonoBehaviour
         _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
         _animIDPraying = Animator.StringToHash("Praying");
         _animIDBackFlip = Animator.StringToHash("Backflip");
+        _animIDKpop_Dance = Animator.StringToHash("Kpop_Dance");
     }
 
     private void GroundedCheck()
@@ -364,6 +366,10 @@ public class ThirdPersonController : MonoBehaviour
         {
             _view.RPC("TriggerBackFlipAnimation", RpcTarget.All);
         }
+        if(_input.Kpop_Dance && !_isAnimationPlaying && grounded)
+        {
+            _view.RPC("TriggerKpop_DanceAnimation", RpcTarget.All);
+        }
     }
 
     [PunRPC]
@@ -380,6 +386,14 @@ public class ThirdPersonController : MonoBehaviour
         _isAnimationPlaying = true;
         _animator.SetTrigger(_animIDBackFlip);
         _input.backFlip = false;
+    }
+    
+    [PunRPC]
+    void TriggerKpop_DanceAnimation()
+    {
+        _isAnimationPlaying = true;
+        _animator.SetTrigger(_animIDKpop_Dance);
+        _input.Kpop_Dance = false;
     }
 
     public void AnimationFinished()
