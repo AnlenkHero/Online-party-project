@@ -1,4 +1,5 @@
-﻿using Photon.Pun;
+﻿using InputSystem;
+using Photon.Pun;
 using StarterAssets;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -69,6 +70,8 @@ public class ThirdPersonController : MonoBehaviour
     [Tooltip("For locking the camera position on all axis")]
     public bool lockCameraPosition = false;
 
+    [SerializeField] TauntMenuController tauntMenuController;
+    
     private Camera _mainCamera;
 
     private float _cinemachineTargetYaw;
@@ -103,7 +106,7 @@ public class ThirdPersonController : MonoBehaviour
     private PhotonView _view;
     private Animator _animator;
     private CharacterController _controller;
-    private StarterAssetsInputs _input;
+    private InputActions _input;
 
 
     private bool IsCurrentDeviceMouse
@@ -127,8 +130,6 @@ public class ThirdPersonController : MonoBehaviour
             Debug.Log("Setting up camera for my player");
             _mainCamera = GetComponentInChildren<Camera>();
             _mainCamera.enabled = true;
-            Cursor.lockState = CursorLockMode.Locked;
-            _cursorLocked = true;
             _controller = GetComponent<CharacterController>();
         }
         else
@@ -146,13 +147,13 @@ public class ThirdPersonController : MonoBehaviour
 
         _hasAnimator = TryGetComponent(out _animator);
         _controller = GetComponent<CharacterController>();
-        _input = GetComponent<StarterAssetsInputs>();
+        _input = GetComponent<InputActions>();
 #if ENABLE_INPUT_SYSTEM
         _playerInput = GetComponent<PlayerInput>();
 #else
 			Debug.LogError( "There is no dependency on the new input system. Please enable it from the Project Settings > Player > Active Input Handling dropdown." );
 #endif
-
+        _input.SetCursorState(true);
         AssignAnimationIDs();
 
         _jumpTimeoutDelta = jumpTimeout;
@@ -166,7 +167,7 @@ public class ThirdPersonController : MonoBehaviour
 
         _hasAnimator = TryGetComponent(out _animator);
 
-        AnimationInput();
+        ToggleTauntMenuInput();
         JumpAndGravity();
         GroundedCheck();
         Move();
@@ -356,48 +357,38 @@ public class ThirdPersonController : MonoBehaviour
         }
     }
 
-    private void AnimationInput()
+    private void ToggleTauntMenuInput()
     {
-        if (_input.pray && !_isAnimationPlaying && grounded)
+        if(_input.openTauntMenu && tauntMenuController.gameObject.activeSelf)
         {
-            _view.RPC("TriggerPrayAnimation", RpcTarget.All);
+            HideTauntMenu();
         }
-        if(_input.backFlip && !_isAnimationPlaying && grounded)
+        else if (_input.openTauntMenu && !_isAnimationPlaying && grounded)
         {
-            _view.RPC("TriggerBackFlipAnimation", RpcTarget.All);
-        }
-        if(_input.Kpop_Dance && !_isAnimationPlaying && grounded)
-        {
-            _view.RPC("TriggerKpop_DanceAnimation", RpcTarget.All);
+            OpenTauntMenu();   
         }
     }
 
-    [PunRPC]
-    void TriggerPrayAnimation()
+    private void OpenTauntMenu()
     {
-        _isAnimationPlaying = true;
-        _animator.SetTrigger(_animIDPraying);
-        _input.pray = false;
+        tauntMenuController.gameObject.SetActive(true);
+        _input.SetCursorState(false);
+        _input.openTauntMenu = false;
     }
-    
-    [PunRPC]
-    void TriggerBackFlipAnimation()
+    public void HideTauntMenu()
     {
-        _isAnimationPlaying = true;
-        _animator.SetTrigger(_animIDBackFlip);
-        _input.backFlip = false;
-    }
-    
-    [PunRPC]
-    void TriggerKpop_DanceAnimation()
-    {
-        _isAnimationPlaying = true;
-        _animator.SetTrigger(_animIDKpop_Dance);
-        _input.Kpop_Dance = false;
+        tauntMenuController.gameObject.SetActive(false);
+        _input.SetCursorState(true);
+        _input.openTauntMenu = false;
     }
 
     public void AnimationFinished()
     {
         _isAnimationPlaying = false;
+    }
+
+    public void SetStateCursor(bool state)
+    {
+        _input.SetCursorState(state);
     }
 }

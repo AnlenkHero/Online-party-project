@@ -1,31 +1,33 @@
+using InputSystem;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace StarterAssets
 {
     public class UICanvasControllerInput : MonoBehaviour
     {
 
-        [Header("Output")]
-        public StarterAssetsInputs starterAssetsInputs;
+        [FormerlySerializedAs("starterAssetsInputs")] [Header("Output")]
+        public InputActions inputActions;
 
         public void VirtualMoveInput(Vector2 virtualMoveDirection)
         {
-            starterAssetsInputs.MoveInput(virtualMoveDirection);
+            inputActions.MoveInput(virtualMoveDirection);
         }
 
         public void VirtualLookInput(Vector2 virtualLookDirection)
         {
-            starterAssetsInputs.LookInput(virtualLookDirection);
+            inputActions.LookInput(virtualLookDirection);
         }
 
         public void VirtualJumpInput(bool virtualJumpState)
         {
-            starterAssetsInputs.JumpInput(virtualJumpState);
+            inputActions.JumpInput(virtualJumpState);
         }
 
         public void VirtualSprintInput(bool virtualSprintState)
         {
-            starterAssetsInputs.SprintInput(virtualSprintState);
+            inputActions.SprintInput(virtualSprintState);
         }
         
     }
