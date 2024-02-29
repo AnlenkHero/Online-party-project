@@ -1,6 +1,5 @@
 ﻿using InputSystem;
 using Photon.Pun;
-using StarterAssets;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -106,7 +105,7 @@ public class ThirdPersonController : MonoBehaviour
     private PhotonView _view;
     private Animator _animator;
     private CharacterController _controller;
-    private InputActions _input;
+    private InputController _input;
 
 
     private bool IsCurrentDeviceMouse
@@ -147,7 +146,7 @@ public class ThirdPersonController : MonoBehaviour
 
         _hasAnimator = TryGetComponent(out _animator);
         _controller = GetComponent<CharacterController>();
-        _input = GetComponent<InputActions>();
+        _input = GetComponent<InputController>();
 #if ENABLE_INPUT_SYSTEM
         _playerInput = GetComponent<PlayerInput>();
 #else
@@ -155,7 +154,6 @@ public class ThirdPersonController : MonoBehaviour
 #endif
         _input.SetCursorState(true);
         AssignAnimationIDs();
-
         _jumpTimeoutDelta = jumpTimeout;
         _fallTimeoutDelta = fallTimeout;
     }
@@ -319,7 +317,7 @@ public class ThirdPersonController : MonoBehaviour
                 }
             }
 
-            _input.jump = false;
+            
         }
 
         if (_verticalVelocity < _terminalVelocity)
@@ -359,36 +357,31 @@ public class ThirdPersonController : MonoBehaviour
 
     private void ToggleTauntMenuInput()
     {
-        if(_input.openTauntMenu && tauntMenuController.gameObject.activeSelf)
+        if(_input.openTauntMenu &&!_isAnimationPlaying && grounded)
+        {
+            OnOpenTauntMenu();
+        }
+        else if(!_input.openTauntMenu || grounded)
         {
             HideTauntMenu();
         }
-        else if (_input.openTauntMenu && !_isAnimationPlaying && grounded)
-        {
-            OpenTauntMenu();   
-        }
+        
     }
 
-    private void OpenTauntMenu()
+    private void OnOpenTauntMenu()
     {
         tauntMenuController.gameObject.SetActive(true);
         _input.SetCursorState(false);
-        _input.openTauntMenu = false;
     }
     public void HideTauntMenu()
     {
         tauntMenuController.gameObject.SetActive(false);
         _input.SetCursorState(true);
-        _input.openTauntMenu = false;
     }
 
     public void AnimationFinished()
     {
         _isAnimationPlaying = false;
     }
-
-    public void SetStateCursor(bool state)
-    {
-        _input.SetCursorState(state);
-    }
+    
 }

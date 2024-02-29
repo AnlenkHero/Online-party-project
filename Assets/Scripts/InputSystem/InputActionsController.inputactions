@@ -1,5 +1,5 @@
 {
-    "name": "InputActions",
+    "name": "InputActionsController",
     "maps": [
         {
             "name": "Player",
