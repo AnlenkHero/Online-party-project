@@ -1,43 +1,52 @@
-﻿using InputSystem;
+﻿using System;
+using InputSystem;
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(CharacterController))]
-#if ENABLE_INPUT_SYSTEM
 [RequireComponent(typeof(PlayerInput))]
-#endif
 public class ThirdPersonController : MonoBehaviour
 {
-    [Header("Player")] [Tooltip("Move speed of the character in m/s")]
-    public float moveSpeed = 2.0f;
+    [Header("General")] [SerializeField] private PlayerInput playerInput;
+    [SerializeField] private PhotonView view;
+    [SerializeField] private Animator animator;
+    [SerializeField] private CharacterController controller;
+    [SerializeField] private InputController input;
+    public Transform centerOfPlayer;
+    
+    [Header("Player")] [Tooltip("Move speed of the character in m/s")] [SerializeField]
+    private float moveSpeed = 2.0f;
 
-    [Tooltip("Sprint speed of the character in m/s")]
-    public float sprintSpeed = 5.335f;
+    [Tooltip("Sprint speed of the character in m/s")] [SerializeField]
+    private float sprintSpeed = 5.335f;
 
-    [Tooltip("How fast the character turns to face movement direction")] [Range(0.0f, 0.3f)]
-    public float rotationSmoothTime = 0.12f;
+    [Tooltip("How fast the character turns to face movement direction")] [Range(0.0f, 0.3f)] [SerializeField]
+    private float rotationSmoothTime = 0.12f;
 
-    [Tooltip("Acceleration and deceleration")]
-    public float speedChangeRate = 10.0f;
+    [Tooltip("Acceleration and deceleration")] [SerializeField]
+    private float speedChangeRate = 10.0f;
 
-    public AudioClip landingAudioClip;
-    public AudioClip[] footstepAudioClips;
-    [Range(0, 1)] public float footstepAudioVolume = 0.5f;
-
-
-    [Space(10)] [Tooltip("The height the player can jump")]
-    public float jumpHeight = 1.2f;
-
-    [Tooltip("The character uses its own gravity value. The engine default is -9.81f")]
-    public float gravity = -15.0f;
+    [SerializeField] private AudioClip landingAudioClip;
+    [SerializeField] private AudioClip[] footstepAudioClips;
+    [Range(0, 1)] [SerializeField] private float footstepAudioVolume = 0.5f;
 
 
-    [Space(10)] [Tooltip("Time required to pass before being able to jump again. Set to 0f to instantly jump again")]
-    public float jumpTimeout = 0.50f;
+    [Space(10)] [Tooltip("The height the player can jump")] [SerializeField]
+    private float jumpHeight = 1.2f;
 
-    [Tooltip("Time required to pass before entering the fall state. Useful for walking down stairs")]
-    public float fallTimeout = 0.15f;
+    [Tooltip("The character uses its own gravity value. The engine default is -9.81f")] [SerializeField]
+    private float gravity = -15.0f;
+
+
+    [Space(10)]
+    [Tooltip("Time required to pass before being able to jump again. Set to 0f to instantly jump again")]
+    [SerializeField]
+    private float jumpTimeout = 0.50f;
+
+    [Tooltip("Time required to pass before entering the fall state. Useful for walking down stairs")] [SerializeField]
+    private float fallTimeout = 0.15f;
 
 
     [Header("Player Grounded")]
@@ -46,36 +55,53 @@ public class ThirdPersonController : MonoBehaviour
 
     [Tooltip("Useful for rough ground")] public float groundedOffset = -0.14f;
 
-    [Tooltip("The radius of the grounded check. Should match the radius of the CharacterController")]
-    public float groundedRadius = 0.28f;
+    [Tooltip("The radius of the grounded check. Should match the radius of the CharacterController")] [SerializeField]
+    private float groundedRadius = 0.28f;
 
-    [Tooltip("What layers the character uses as ground")]
-    public LayerMask groundLayers;
+    [Tooltip("What layers the character uses as ground")] [SerializeField]
+    private LayerMask groundLayers;
 
 
-    [Header("Cinemachine")]
-    [Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
-    public GameObject cinemachineCameraTarget;
+    [Header("Cinemachine")] [SerializeField]
+    private Camera mainCamera;
 
-    [Tooltip("How far in degrees can you move the camera up")]
-    public float topClamp = 70.0f;
+    [Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")] [SerializeField]
+    private GameObject cinemachineCameraTarget;
 
-    [Tooltip("How far in degrees can you move the camera down")]
-    public float bottomClamp = -30.0f;
+    [Tooltip("How far in degrees can you move the camera up")] [SerializeField]
+    private float topClamp = 70.0f;
+
+    [Tooltip("How far in degrees can you move the camera down")] [SerializeField]
+    private float bottomClamp = -30.0f;
 
     [Tooltip("Additional degress to override the camera. Useful for fine tuning camera position when locked")]
-    public float cameraAngleOverride = 0.0f;
+    [SerializeField]
+    private float cameraAngleOverride = 0.0f;
 
-    [Tooltip("For locking the camera position on all axis")]
-    public bool lockCameraPosition = false;
+    [Tooltip("For locking the camera position on all axis")] [SerializeField]
+    private bool lockCameraPosition = false;
 
     [SerializeField] TauntMenuController tauntMenuController;
-    
-    private Camera _mainCamera;
+
+    [Header("Interactable Objects")] [SerializeField]
+    private float interactableObjectRange = 3.0f;
+
+    [SerializeField] private LayerMask interactableLayerMask;
+    [SerializeField] private float checkRate = 0.2f;
+    [SerializeField] private float nextCheckTime = 0f;
+    private IInteractable _previousInteractableInRange;
+
+    [Header("Follow behaviour")] [SerializeField]
+    private LineRenderer lineRenderer;
+
+    private Transform _followTarget;
+    private PhotonView _followTargetView;
+    private Transform _followTargetCenterOfPlayer;
+
 
     private float _cinemachineTargetYaw;
     private float _cinemachineTargetPitch;
-    private const float CameraThreshold = 0.01f;
+    private const float CameraThreshold = 0.00001f;
     private bool _cursorLocked;
 
     private float _speed;
@@ -88,87 +114,63 @@ public class ThirdPersonController : MonoBehaviour
     private float _jumpTimeoutDelta;
     private float _fallTimeoutDelta;
 
+    [HideInInspector] public bool isAnimationPlaying;
     private int _animIDSpeed;
     private int _animIDGrounded;
     private int _animIDJump;
     private int _animIDFreeFall;
     private int _animIDMotionSpeed;
-    private int _animIDPraying;
-    private int _animIDBackFlip;
-    private int _animIDKpop_Dance;
     private bool _hasAnimator;
-    public bool _isAnimationPlaying;
-
-#if ENABLE_INPUT_SYSTEM
-    private PlayerInput _playerInput;
-#endif
-    private PhotonView _view;
-    private Animator _animator;
-    private CharacterController _controller;
-    private InputController _input;
+    private bool _openTauntMenu;
 
 
-    private bool IsCurrentDeviceMouse
-    {
-        get
-        {
-#if ENABLE_INPUT_SYSTEM
-            return _playerInput.currentControlScheme == "KeyboardMouse";
-#else
-				return false;
-#endif
-        }
-    }
+    public static event Action OnPlayerSpawned;
+
+    private bool IsCurrentDeviceMouse => playerInput.currentControlScheme == "KeyboardMouse";
 
 
     private void Awake()
     {
-        _view = GetComponent<PhotonView>();
-        if (_view.IsMine)
-        {
-            Debug.Log("Setting up camera for my player");
-            _mainCamera = GetComponentInChildren<Camera>();
-            _mainCamera.enabled = true;
-            _controller = GetComponent<CharacterController>();
-        }
-        else
-        {
-            Debug.Log("Disabling camera for other player's prefab");
-            Camera otherPlayerCamera = GetComponentInChildren<Camera>();
-            if (otherPlayerCamera != null)
-                otherPlayerCamera.gameObject.SetActive(false);
-        }
-    }
-
-    private void Start()
-    {
-        _cinemachineTargetYaw = cinemachineCameraTarget.transform.rotation.eulerAngles.y;
-
-        _hasAnimator = TryGetComponent(out _animator);
-        _controller = GetComponent<CharacterController>();
-        _input = GetComponent<InputController>();
-#if ENABLE_INPUT_SYSTEM
-        _playerInput = GetComponent<PlayerInput>();
-#else
-			Debug.LogError( "There is no dependency on the new input system. Please enable it from the Project Settings > Player > Active Input Handling dropdown." );
-#endif
-        _input.SetCursorState(true);
-        AssignAnimationIDs();
-        _jumpTimeoutDelta = jumpTimeout;
-        _fallTimeoutDelta = fallTimeout;
+        SetupPlayer();
     }
 
     private void Update()
     {
-        if (!_view.IsMine || _isAnimationPlaying)
+        if (!view.IsMine || isAnimationPlaying)
             return;
 
-        _hasAnimator = TryGetComponent(out _animator);
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            RaycastHit hit;
+            if (Physics.Raycast(mainCamera.transform.position, mainCamera.transform.forward, out hit, 100))
+            {
+                PhotonView targetView = hit.collider.gameObject.GetComponent<PhotonView>();
+                if (targetView != null)
+                {
+                    targetView.RPC(nameof(SetupFollow), RpcTarget.All, view.ViewID);
+                }
+            }
+        }
 
-        ToggleTauntMenuInput();
-        JumpAndGravity();
-        GroundedCheck();
-        Move();
+        if (_followTarget != null)
+        {
+            Follow();
+        }
+        else
+        {
+            DetectInteractableObjects();
+            JumpAndGravity();
+            GroundedCheck();
+            Move();
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        if (!view.IsMine || isAnimationPlaying)
+            return;
+
+        //  Follow();
     }
 
     private void LateUpdate()
@@ -176,39 +178,128 @@ public class ThirdPersonController : MonoBehaviour
         CameraRotation();
     }
 
-    private void AssignAnimationIDs()
+    [PunRPC]
+    public void DrawLine()
     {
-        _animIDSpeed = Animator.StringToHash("Speed");
-        _animIDGrounded = Animator.StringToHash("Grounded");
-        _animIDJump = Animator.StringToHash("Jump");
-        _animIDFreeFall = Animator.StringToHash("FreeFall");
-        _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
-        _animIDPraying = Animator.StringToHash("Praying");
-        _animIDBackFlip = Animator.StringToHash("Backflip");
-        _animIDKpop_Dance = Animator.StringToHash("Kpop_Dance");
+        lineRenderer.SetPosition(0, centerOfPlayer.position);
+        lineRenderer.SetPosition(1, _followTargetCenterOfPlayer.position);
     }
 
-    private void GroundedCheck()
+    [PunRPC]
+    public void SetupFollow(int targetViewID)
     {
-        Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - groundedOffset,
-            transform.position.z);
-        grounded = Physics.CheckSphere(spherePosition, groundedRadius, groundLayers,
-            QueryTriggerInteraction.Ignore);
+        if (!PhotonView.Find(targetViewID)) return;
 
-        if (_hasAnimator)
+        if (_followTargetView != null && _followTargetView.ViewID == targetViewID)
         {
-            _animator.SetBool(_animIDGrounded, grounded);
+            lineRenderer.enabled = false;
+            _followTarget = null;
+            _followTargetView = null;
+            _followTargetCenterOfPlayer = null;
+        }
+        else
+        {
+            lineRenderer.enabled = true;
+            _followTargetView = PhotonView.Find(targetViewID);
+            _followTarget = _followTargetView.transform;
+            _followTargetCenterOfPlayer = _followTarget.GetComponent<ThirdPersonController>().centerOfPlayer;
         }
     }
 
+    private void Follow()
+    {
+        Vector3 directionToTarget = _followTarget.position - transform.position;
+        directionToTarget.y = 0; 
+
+        float currentDistance = directionToTarget.magnitude;
+        float stopDistance = 1.5f; 
+        float desiredDistance = stopDistance + 0.5f; 
+        
+        if (currentDistance > desiredDistance)
+        {
+            Vector3 targetPosition = _followTarget.position - directionToTarget.normalized * stopDistance;
+            targetPosition.y = transform.position.y;
+            Quaternion targetRotation = Quaternion.LookRotation(directionToTarget);
+
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSmoothTime * 60 * Time.deltaTime);
+            
+            controller.Move(new Vector3(0, -5, 0) * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, targetPosition, sprintSpeed * Time.deltaTime);
+        }
+        else
+        {
+            animator.SetFloat(_animIDSpeed, 0);
+            animator.SetFloat(_animIDMotionSpeed, 0);
+        }
+        
+        
+        float animationSpeed = currentDistance > desiredDistance ? 1 : 0;
+        animator.SetFloat(_animIDSpeed, animationSpeed * moveSpeed);
+        animator.SetFloat(_animIDMotionSpeed, animationSpeed);
+        
+        view.RPC(nameof(DrawLine), RpcTarget.All);
+    }
+
+
+
+    private void InteractWithObject()
+    {
+        if (_previousInteractableInRange != null)
+        {
+            _previousInteractableInRange.Interact();
+        }
+    }
+
+    private void DetectInteractableObjects()
+    {
+        if (Time.time < nextCheckTime)
+            return;
+
+        nextCheckTime = Time.time + checkRate;
+
+        Collider[] hitColliders =
+            Physics.OverlapSphere(transform.position, interactableObjectRange, interactableLayerMask);
+        IInteractable closestInteractable = null;
+
+        float closestDistanceSqr = Mathf.Infinity;
+        Vector3 currentPosition = transform.position;
+        foreach (var hitCollider in hitColliders)
+        {
+            if (!hitCollider.TryGetComponent(out IInteractable interactable)) continue;
+
+            Vector3 directionToTarget = hitCollider.transform.position - currentPosition;
+            float dSqrToTarget = directionToTarget.sqrMagnitude;
+            if (dSqrToTarget < closestDistanceSqr)
+            {
+                closestDistanceSqr = dSqrToTarget;
+                closestInteractable = interactable;
+            }
+        }
+
+        if (closestInteractable != null && closestInteractable != _previousInteractableInRange)
+        {
+            _previousInteractableInRange?.HideInfo();
+            closestInteractable.ShowInfo();
+            Debug.Log("Interactable object in range: " + closestInteractable);
+            _previousInteractableInRange = closestInteractable;
+        }
+        else if (closestInteractable == null && _previousInteractableInRange != null)
+        {
+            _previousInteractableInRange.HideInfo();
+            Debug.Log("No interactable object in range");
+            _previousInteractableInRange = null;
+        }
+    }
+
+
     private void CameraRotation()
     {
-        if (_input.look.sqrMagnitude >= CameraThreshold && !lockCameraPosition)
+        if (input.Look.sqrMagnitude >= CameraThreshold && !lockCameraPosition)
         {
             float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
 
-            _cinemachineTargetYaw += _input.look.x * deltaTimeMultiplier;
-            _cinemachineTargetPitch += _input.look.y * deltaTimeMultiplier;
+            _cinemachineTargetYaw += input.Look.x * deltaTimeMultiplier;
+            _cinemachineTargetPitch += input.Look.y * deltaTimeMultiplier;
         }
 
         _cinemachineTargetYaw = ClampAngle(_cinemachineTargetYaw, float.MinValue, float.MaxValue);
@@ -220,14 +311,14 @@ public class ThirdPersonController : MonoBehaviour
 
     private void Move()
     {
-        float targetSpeed = _input.sprint ? sprintSpeed : moveSpeed;
+        float targetSpeed = input.Sprint ? sprintSpeed : moveSpeed;
 
-        if (_input.move == Vector2.zero) targetSpeed = 0.0f;
+        if (input.Move == Vector2.zero) targetSpeed = 0.0f;
 
-        float currentHorizontalSpeed = new Vector3(_controller.velocity.x, 0.0f, _controller.velocity.z).magnitude;
+        float currentHorizontalSpeed = new Vector3(controller.velocity.x, 0.0f, controller.velocity.z).magnitude;
 
         float speedOffset = 0.1f;
-        float inputMagnitude = _input.analogMovement ? _input.move.magnitude : 1f;
+        float inputMagnitude = input.analogMovement ? input.Move.magnitude : 1f;
 
         if (currentHorizontalSpeed < targetSpeed - speedOffset ||
             currentHorizontalSpeed > targetSpeed + speedOffset)
@@ -245,12 +336,12 @@ public class ThirdPersonController : MonoBehaviour
         _animationBlend = Mathf.Lerp(_animationBlend, targetSpeed, Time.deltaTime * speedChangeRate);
         if (_animationBlend < 0.01f) _animationBlend = 0f;
 
-        Vector3 inputDirection = new Vector3(_input.move.x, 0.0f, _input.move.y).normalized;
+        Vector3 inputDirection = new Vector3(input.Move.x, 0.0f, input.Move.y).normalized;
 
-        if (_input.move != Vector2.zero)
+        if (input.Move != Vector2.zero)
         {
             _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
-                              _mainCamera.transform.eulerAngles.y;
+                              mainCamera.transform.eulerAngles.y;
             float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
                 rotationSmoothTime);
 
@@ -259,13 +350,13 @@ public class ThirdPersonController : MonoBehaviour
 
         Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
 
-        _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
-                         new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
+        controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
+                        new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
 
         if (_hasAnimator)
         {
-            _animator.SetFloat(_animIDSpeed, _animationBlend);
-            _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
+            animator.SetFloat(_animIDSpeed, _animationBlend);
+            animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
         }
     }
 
@@ -277,8 +368,8 @@ public class ThirdPersonController : MonoBehaviour
 
             if (_hasAnimator)
             {
-                _animator.SetBool(_animIDJump, false);
-                _animator.SetBool(_animIDFreeFall, false);
+                animator.SetBool(_animIDJump, false);
+                animator.SetBool(_animIDFreeFall, false);
             }
 
             if (_verticalVelocity < 0.0f)
@@ -286,13 +377,13 @@ public class ThirdPersonController : MonoBehaviour
                 _verticalVelocity = -2f;
             }
 
-            if (_input.jump && _jumpTimeoutDelta <= 0.0f)
+            if (input.Jump && _jumpTimeoutDelta <= 0.0f)
             {
                 _verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
 
                 if (_hasAnimator)
                 {
-                    _animator.SetBool(_animIDJump, true);
+                    animator.SetBool(_animIDJump, true);
                 }
             }
 
@@ -313,11 +404,9 @@ public class ThirdPersonController : MonoBehaviour
             {
                 if (_hasAnimator)
                 {
-                    _animator.SetBool(_animIDFreeFall, true);
+                    animator.SetBool(_animIDFreeFall, true);
                 }
             }
-
-            
         }
 
         if (_verticalVelocity < _terminalVelocity)
@@ -340,7 +429,7 @@ public class ThirdPersonController : MonoBehaviour
             if (footstepAudioClips.Length > 0)
             {
                 var index = Random.Range(0, footstepAudioClips.Length);
-                AudioSource.PlayClipAtPoint(footstepAudioClips[index], transform.TransformPoint(_controller.center),
+                AudioSource.PlayClipAtPoint(footstepAudioClips[index], transform.TransformPoint(controller.center),
                     footstepAudioVolume);
             }
         }
@@ -350,38 +439,91 @@ public class ThirdPersonController : MonoBehaviour
     {
         if (animationEvent.animatorClipInfo.weight > 0.5f)
         {
-            AudioSource.PlayClipAtPoint(landingAudioClip, transform.TransformPoint(_controller.center),
+            AudioSource.PlayClipAtPoint(landingAudioClip, transform.TransformPoint(controller.center),
                 footstepAudioVolume);
         }
     }
 
-    private void ToggleTauntMenuInput()
+    private void ToggleHideTauntMenuInput()
     {
-        if(_input.openTauntMenu &&!_isAnimationPlaying && grounded)
+        if (!_openTauntMenu && !isAnimationPlaying && grounded)
         {
-            OnOpenTauntMenu();
+            OpenTauntMenu();
         }
-        else if(!_input.openTauntMenu || grounded)
+        else if (_openTauntMenu)
         {
             HideTauntMenu();
         }
-        
     }
 
-    private void OnOpenTauntMenu()
+    private void OpenTauntMenu()
     {
-        tauntMenuController.gameObject.SetActive(true);
-        _input.SetCursorState(false);
+        tauntMenuController.canvasGameObject.SetActive(true);
+        input.SetCursorState(false);
+        _openTauntMenu = true;
     }
+
     public void HideTauntMenu()
     {
-        tauntMenuController.gameObject.SetActive(false);
-        _input.SetCursorState(true);
+        tauntMenuController.canvasGameObject.SetActive(false);
+        input.SetCursorState(true);
+        _openTauntMenu = false;
     }
 
     public void AnimationFinished()
     {
-        _isAnimationPlaying = false;
+        isAnimationPlaying = false;
     }
-    
+
+    private void AssignAnimationIDs()
+    {
+        _animIDSpeed = Animator.StringToHash("Speed");
+        _animIDGrounded = Animator.StringToHash("Grounded");
+        _animIDJump = Animator.StringToHash("Jump");
+        _animIDFreeFall = Animator.StringToHash("FreeFall");
+        _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
+    }
+
+    private void GroundedCheck()
+    {
+        Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - groundedOffset,
+            transform.position.z);
+        grounded = Physics.CheckSphere(spherePosition, groundedRadius, groundLayers,
+            QueryTriggerInteraction.Ignore);
+
+        if (_hasAnimator)
+        {
+            animator.SetBool(_animIDGrounded, grounded);
+        }
+    }
+
+    private void SetupPlayer()
+    {
+        view = GetComponent<PhotonView>();
+        if (view.IsMine)
+        {
+            Debug.Log("Setting up for my player");
+            mainCamera.enabled = true;
+            _cinemachineTargetYaw = cinemachineCameraTarget.transform.rotation.eulerAngles.y;
+
+            _hasAnimator = TryGetComponent(out animator);
+
+
+            input.SetCursorState(true);
+            input.OnOpenHideTauntMenu += ToggleHideTauntMenuInput;
+            input.OnInteract += InteractWithObject;
+            PopupManager.OnPlayerSpawned += OnPlayerSpawned;
+            AssignAnimationIDs();
+
+            _jumpTimeoutDelta = jumpTimeout;
+            _fallTimeoutDelta = fallTimeout;
+        }
+        else
+        {
+            Debug.Log("Disabling camera for other player's prefab");
+            Camera otherPlayerCamera = GetComponentInChildren<Camera>();
+            if (otherPlayerCamera != null)
+                otherPlayerCamera.gameObject.SetActive(false);
+        }
+    }
 }

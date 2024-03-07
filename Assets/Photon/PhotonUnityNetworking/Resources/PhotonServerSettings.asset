@@ -46,6 +46,12 @@ MonoBehaviour:
   - TriggerBackFlipAnimation
   - TriggerKpop_DanceAnimation
   - PlayAnimation
+  - PlayVideo
+  - OnPlayerSpawnedZ
+  - FollowMe
+  - DrawLine
+  - SetupFollow
+  - SpawnPlayer
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

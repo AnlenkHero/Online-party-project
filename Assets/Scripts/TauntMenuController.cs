@@ -4,17 +4,18 @@ using UnityEngine;
 public class TauntMenuController : MonoBehaviour
 {
     [SerializeField] private ThirdPersonController thirdPersonController;
-    public Animator animator;
-    public TauntButton buttonPrefab;
-    public Transform buttonsParent;
+    [SerializeField] private Animator animator;
+    [SerializeField] private TauntButton buttonPrefab;
+    [SerializeField] private Transform buttonsParent;
+    public GameObject canvasGameObject;
     private PhotonView _photonView;
 
-    void Awake()
+    private void Awake()
     {
         _photonView = GetComponent<PhotonView>();
     }
 
-    void Start()
+    public void Start()
     {
         foreach (var clip in animator.runtimeAnimatorController.animationClips)
         {
@@ -25,19 +26,23 @@ public class TauntMenuController : MonoBehaviour
         }
     }
 
-    void CreateButtonForAnimation(string animationName)
+    private void CreateButtonForAnimation(string animationName)
     {
         var buttonObj = Instantiate(buttonPrefab, buttonsParent);
-        buttonObj.SetData(animationName, () =>
+        var tauntName = animationName.Replace("Taunt_", string.Empty);
+        buttonObj.SetData(tauntName, () =>
         {
-            thirdPersonController._isAnimationPlaying = true;
-            _photonView.RPC("PlayAnimation", RpcTarget.All, animationName);
-            thirdPersonController.HideTauntMenu();
+            if (thirdPersonController.grounded)
+            {
+                thirdPersonController.isAnimationPlaying = true;
+                _photonView.RPC(nameof(PlayAnimation), RpcTarget.All, animationName);
+                thirdPersonController.HideTauntMenu();
+            }
         });
     }
 
     [PunRPC]
-    void PlayAnimation(string animationName)
+    private void PlayAnimation(string animationName)
     {
         animator.Play(animationName);
     }

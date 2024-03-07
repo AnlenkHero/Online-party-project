@@ -1,70 +1,80 @@
 using System;
+using Photon.Pun;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace InputSystem
 {
     public class InputController : MonoBehaviour
     {
         private InputInstructions _inputInstructions;
-        
-        [Header("Character Input Values")] public Vector2 move;
-        public Vector2 look;
-        public bool jump;
-        public bool sprint;
-        public bool openTauntMenu;
+        private PhotonView _photonView;
+        public Vector2 Move { get; private set; }
+        public Vector2 Look { get; private set; }
+        public bool Jump { get; private set; }
+        public bool Sprint { get; private set; }
 
-        [Header("Movement Settings")] public bool analogMovement;
 
-        [Header("Mouse Cursor Settings")] public bool cursorLocked = true;
-        public bool cursorInputForLook = true;
-        
+        [Header("Movement Settings")] 
+        public bool analogMovement;
+
+        [Header("Mouse Cursor Settings")] 
+        private bool _cursorLocked = true;
+        private  bool _cursorInputForLook = true;
+
+        public event Action OnOpenHideTauntMenu;
+        public event Action OnInteract;
+
+
         private void Awake()
         {
+            _photonView = GetComponent<PhotonView>();
+            if(!_photonView.IsMine)
+                return;
+                
             _inputInstructions = new InputInstructions();
             InputCheck();
         }
 
-        
-
-
-#if ENABLE_INPUT_SYSTEM
-        
         private void InputCheck()
         {
             _inputInstructions.Enable();
-            _inputInstructions.Player.Jump.performed += ctx => jump = ctx.ReadValueAsButton();
-            _inputInstructions.Player.Jump.canceled += ctx => jump = ctx.ReadValueAsButton();
-            _inputInstructions.Player.Sprint.performed += ctx => sprint = ctx.ReadValueAsButton();
-            _inputInstructions.Player.Sprint.canceled += ctx => sprint = ctx.ReadValueAsButton();
-            _inputInstructions.Player.OpenTauntMenu.performed += ctx => openTauntMenu = !openTauntMenu;
-            _inputInstructions.Player.Move.performed += ctx => move = ctx.ReadValue<Vector2>();
-            _inputInstructions.Player.Move.canceled += ctx => move = Vector2.zero;
+            _inputInstructions.Player.Jump.performed += ctx => Jump = ctx.ReadValueAsButton();
+            _inputInstructions.Player.Jump.canceled += ctx => Jump = ctx.ReadValueAsButton();
+            _inputInstructions.Player.Sprint.performed += ctx => Sprint = ctx.ReadValueAsButton();
+            _inputInstructions.Player.Sprint.canceled += ctx => Sprint = ctx.ReadValueAsButton();
+            _inputInstructions.Player.OpenTauntMenu.performed += ctx => OnOpenHideTauntMenu?.Invoke();
+            _inputInstructions.Player.Move.performed += ctx => Move = ctx.ReadValue<Vector2>();
+            _inputInstructions.Player.Move.canceled += ctx => Move = Vector2.zero;
             _inputInstructions.Player.Look.performed += ctx => OnLook(ctx.ReadValue<Vector2>());
-            _inputInstructions.Player.Look.canceled += ctx => look = Vector2.zero;
+            _inputInstructions.Player.Look.canceled += ctx => Look = Vector2.zero;
+            _inputInstructions.Player.Interact.performed += ctx => OnInteract?.Invoke();
         }
-        
-        public void OnLook(Vector2 value)
+
+
+        private void OnLook(Vector2 value)
         {
-            if (cursorInputForLook)
+            if (_cursorInputForLook)
             {
-                look = value;
+                Look = value;
             }
         }
-        
 
-#endif
 
         private void OnApplicationFocus(bool hasFocus)
         {
-            SetCursorState(cursorLocked);
+            SetCursorState(_cursorLocked);
         }
 
         public void SetCursorState(bool newState)
         {
-            cursorLocked = newState;
+            _cursorLocked = newState;
             Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
         }
-        
+
+
+        private void OnDisable()
+        {
+            _inputInstructions.Disable();
+        }
     }
 }
