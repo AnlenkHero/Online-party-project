@@ -8,7 +8,7 @@ using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(PlayerInput))]
-public class ThirdPersonController : MonoBehaviourPunCallbacks
+public class ZXC : MonoBehaviourPunCallbacks
 {
     [Header("General")] [SerializeField] private PlayerInput playerInput;
     [SerializeField] private PhotonView view;
@@ -140,18 +140,6 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
     {
         if (!view.IsMine || isAnimationPlaying)
             return;
-
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            if (Physics.Raycast(mainCamera.transform.position, mainCamera.transform.forward, out var hit, 100))
-            {
-                PhotonView targetView = hit.collider.gameObject.GetComponent<PhotonView>();
-                if (targetView != null)
-                {
-                    targetView.RPC("SetupFollow", RpcTarget.AllBufferedViaServer, view.ViewID);
-                }
-            }
-        }
 
         if (_isFollowing)
         {
@@ -520,8 +508,6 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
 
 
             input.SetCursorState(true);
-            input.OnOpenHideTauntMenu += ToggleHideTauntMenuInput;
-            input.OnInteract += InteractWithObject;
             AnimationManager.OnPlayerSpawned += OnPlayerSpawned;
             AssignAnimationIDs();
 

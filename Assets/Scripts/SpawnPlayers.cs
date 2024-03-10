@@ -13,7 +13,7 @@ public class SpawnPlayers : MonoBehaviourPunCallbacks
 
     private void Awake()
     {
-        ThirdPersonController.OnPlayerSpawned += () =>  SpawnPlayer(true);
+        ZXC.OnPlayerSpawned += () =>  SpawnPlayer(true);
     }
 
     void SpawnPlayer(bool n)

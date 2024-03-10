@@ -1,21 +1,15 @@
-using System;
 using Photon.Pun;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PopupManager : MonoBehaviour
 {
     private static PopupManager _instance;
+    [SerializeField] private ChatBubble chatBubblePrefab;
+    private ChatBubble currentChatBubbleInstance;
 
-    [SerializeField] private GameObject panelPrefab;
-
-    private GameObject currentPanelInstance;
-    private PhotonView _photonView;
-    public static event Action OnPlayerSpawned;
-
+    
     private void Awake()
     {
-        _photonView = GetComponent<PhotonView>();
         if (_instance == null)
         {
             _instance = this;
@@ -27,43 +21,36 @@ public class PopupManager : MonoBehaviour
         }
     }
 
+    
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.K))
+        if (currentChatBubbleInstance != null)
         {
-            _photonView.RPC(nameof(SpawnPlayer), RpcTarget.All);
-        }
-
-        if (currentPanelInstance != null)
-        {
-            currentPanelInstance.transform.rotation = Quaternion.LookRotation(Camera.main.transform.forward);
+            currentChatBubbleInstance.transform.rotation = Quaternion.LookRotation(Camera.main.transform.forward);
         }
     }
+    
 
-    [PunRPC]
-    private void SpawnPlayer()
+    public static void ShowPanelAboveObject(Transform parentTransform, Vector3 position, string info)
     {
-        OnPlayerSpawned?.Invoke();
-    }
-
-    public static void ShowPanelAboveObject(Transform parentTransform, Vector3 position)
-    {
-        if (_instance.currentPanelInstance != null)
+        if (_instance.currentChatBubbleInstance != null)
         {
             HidePanel();
         }
 
-        _instance.currentPanelInstance =
-            Instantiate(_instance.panelPrefab, parentTransform);
-        _instance.currentPanelInstance.transform.localPosition = position;
+        _instance.currentChatBubbleInstance =
+            Instantiate(_instance.chatBubblePrefab, parentTransform);
+        _instance.currentChatBubbleInstance.transform.localPosition = position;
+        _instance.currentChatBubbleInstance.SetData(info);
     }
 
     public static void HidePanel()
     {
-        if (_instance.currentPanelInstance != null)
+        if (_instance.currentChatBubbleInstance != null)
         {
-            Destroy(_instance.currentPanelInstance);
-            _instance.currentPanelInstance = null;
+            Destroy(_instance.currentChatBubbleInstance.gameObject);
+            _instance.currentChatBubbleInstance = null;
         }
     }
+    
 }
