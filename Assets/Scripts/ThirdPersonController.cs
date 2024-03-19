@@ -141,6 +141,7 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
         if (!view.IsMine || isAnimationPlaying)
             return;
 
+        Debug.Log(PlayerList.Players.Count);
         if (Input.GetKeyDown(KeyCode.C))
         {
             if (Physics.Raycast(mainCamera.transform.position, mainCamera.transform.forward, out var hit, 100))
@@ -246,7 +247,7 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
         float animationSpeed = currentDistance > stopDistance ? 1 : 0;
         animator.SetFloat(_animIDSpeed, animationSpeed * moveSpeed);
         animator.SetFloat(_animIDMotionSpeed, animationSpeed);
-        
+
         if (_followTargetCenterOfPlayer)
             view.RPC(nameof(DrawLine), RpcTarget.All);
     }
@@ -520,9 +521,11 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
 
 
             input.SetCursorState(true);
+            CutsceneManager.OnCutsceneStarted += () => isAnimationPlaying = true;
+            CutsceneManager.OnCutsceneEnded += () => isAnimationPlaying = false;
             input.OnOpenHideTauntMenu += ToggleHideTauntMenuInput;
             input.OnInteract += InteractWithObject;
-            AnimationManager.OnPlayerSpawned += OnPlayerSpawned;
+            ReviveAnimation.OnPlayerRevived += OnPlayerSpawned;
             AssignAnimationIDs();
 
             _jumpTimeoutDelta = jumpTimeout;

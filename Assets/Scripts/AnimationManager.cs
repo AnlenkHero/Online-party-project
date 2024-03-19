@@ -1,25 +1,72 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Photon.Pun;
 using UnityEngine;
 
-public class AnimationManager : MonoBehaviour, IInteractable
+public abstract class AnimationManager : MonoBehaviour, IInteractable
 {
     public string Description => "Press E to play animation";
-    public static event Action OnPlayerSpawned;
+    [SerializeField] protected List<string> animationNames;
+    [SerializeField] protected Animator animator;
+    [SerializeField] protected PhotonView photonView;
+    protected Queue<string> animationQueue = new();
+    private bool IsAnimationPlaying;
     private bool _isPopUpShown;
-    private PhotonView _photonView;
 
-    private void Awake()
+    protected void Awake()
     {
-        _photonView = GetComponent<PhotonView>();
+        foreach (var name in animationNames)
+        {
+            AddAnimationToQueue(name);
+        }
+    }
+
+    protected void Update()
+    {
+        CheckAnimationEnd(() =>
+            {
+                IsAnimationPlaying = false;
+                OnAnimationEnd(CallbackAfterAllAnimations);
+            }
+        );
+    }
+
+    protected void AddAnimationToQueue(string animationName)
+    {
+        animationQueue.Enqueue(animationName);
+    }
+
+    protected void OnAnimationEnd(Action callbackAfterAllAnimations)
+    {
+        if (animationQueue.Count > 0)
+        {
+            var nextAnimation = animationQueue.Dequeue();
+            animator.SetTrigger(nextAnimation);
+            IsAnimationPlaying = true;
+        }
+        else
+        {
+            callbackAfterAllAnimations?.Invoke();
+        }
+    }
+
+    protected void CheckAnimationEnd(Action callback)
+    {
+        if (IsAnimationPlaying && animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1 &&
+            !animator.IsInTransition(0))
+        {
+            callback?.Invoke();
+        }
     }
 
     public void Interact()
     {
         HideInfo();
-        _photonView.RPC(nameof(SpawnPlayer), RpcTarget.All);
+        photonView.RPC(nameof(DefaultStartAnimationInteraction),RpcTarget.All);
+        photonView.RPC(nameof(AnimationStartInteraction), RpcTarget.All);
     }
-
+    
     public void ShowInfo()
     {
         if (_isPopUpShown) return;
@@ -34,9 +81,17 @@ public class AnimationManager : MonoBehaviour, IInteractable
         _isPopUpShown = false;
     }
 
+
     [PunRPC]
-    private void SpawnPlayer()
+    public void DefaultStartAnimationInteraction()
     {
-        OnPlayerSpawned?.Invoke();
+        animator.SetTrigger(animationQueue.First());
+        IsAnimationPlaying = true;
     }
+
+    [PunRPC]
+    public abstract void AnimationStartInteraction();
+
+    [PunRPC]
+    protected abstract void CallbackAfterAllAnimations();
 }

@@ -508,7 +508,9 @@ public class ZXC : MonoBehaviourPunCallbacks
 
 
             input.SetCursorState(true);
-            AnimationManager.OnPlayerSpawned += OnPlayerSpawned;
+            CutsceneManager.OnCutsceneStarted += () => isAnimationPlaying = true;
+            CutsceneManager.OnCutsceneEnded += () => isAnimationPlaying = false;
+            ReviveAnimation.OnPlayerRevived += OnPlayerSpawned;
             AssignAnimationIDs();
 
             _jumpTimeoutDelta = jumpTimeout;

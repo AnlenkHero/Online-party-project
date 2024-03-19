@@ -53,6 +53,15 @@ MonoBehaviour:
   - SetupFollow
   - SpawnPlayer
   - UpdateFollowState
+  - AddPlayerToList
+  - RemovePlayerFromList
+  - RevivePlayers
+  - AnimationStartInteraction
+  - CallbackAfterAllAnimations
+  - EndCutscene
+  - StartCutscene
+  - DefaultInteraction
+  - DefaultStartAnimationInteraction
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

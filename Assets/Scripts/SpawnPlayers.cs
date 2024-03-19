@@ -6,6 +6,7 @@ using Random = UnityEngine.Random;
 
 public class SpawnPlayers : MonoBehaviourPunCallbacks
 {
+    [SerializeField] private PhotonView photonView;
     public GameObject[] playerPrefabs;
     public Transform[] spawnPoints;
     private GameObject _player;
@@ -21,6 +22,7 @@ public class SpawnPlayers : MonoBehaviourPunCallbacks
         if(_player != null)
         {
             PhotonNetwork.Destroy(_player);
+//            photonView.RPC(nameof(AddPlayerToList), RpcTarget.AllBufferedViaServer,_player);
         }
 
         if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue("PlayerModelIndex", out var modelIndexObject))
@@ -33,6 +35,7 @@ public class SpawnPlayers : MonoBehaviourPunCallbacks
             if (modelIndex >= 0 && modelIndex < playerPrefabs.Length)
             {
               _player =  PhotonNetwork.Instantiate(playerPrefabs[modelIndex].name, spawnPoints[randomSpawnPoint].position, spawnPoints[randomSpawnPoint].rotation);
+  //            PlayerList.Players.Add(_player);
             }
             else
             {
@@ -41,6 +44,16 @@ public class SpawnPlayers : MonoBehaviourPunCallbacks
         }
     }
 
+    [PunRPC]
+    private void AddPlayerToList(GameObject player)
+    {
+        PlayerList.Players.Add(player);
+    }
+    [PunRPC]
+    private void RemovePlayerFromList(GameObject player)
+    {
+        PlayerList.Players.Remove(player);
+    }
     public override void OnJoinedRoom()
     {
         SpawnPlayer(false);
