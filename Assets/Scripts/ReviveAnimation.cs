@@ -16,6 +16,7 @@ public class ReviveAnimation : AnimationManager
     [PunRPC]
     protected override void CallbackAfterAllAnimations()
     {
+        base.CallbackAfterAllAnimations();
         photonView.RPC(nameof(EndCutscene), RpcTarget.All);
         photonView.RPC(nameof(RevivePlayers), RpcTarget.All);
     }

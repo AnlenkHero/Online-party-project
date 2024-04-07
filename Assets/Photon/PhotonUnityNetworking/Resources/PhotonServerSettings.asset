@@ -62,6 +62,18 @@ MonoBehaviour:
   - StartCutscene
   - DefaultInteraction
   - DefaultStartAnimationInteraction
+  - DisableAnimatorGameObject
+  - ToggleInteraction
+  - PlayVideo1
+  - StopInteraction
+  - FinishAnimationSequence
+  - OnAllAnimationsCompleted
+  - PlayVideoChoice
+  - PlayVideoChoiceByIndex
+  - video
+  - SetVideoClipAndPlay
+  - PlayVideoChoiceRPC
+  - SetInitialChoice
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

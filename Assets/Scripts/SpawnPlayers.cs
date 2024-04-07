@@ -29,7 +29,7 @@ public class SpawnPlayers : MonoBehaviourPunCallbacks
         {
             int modelIndex = (int)modelIndexObject;
             if (n)
-                modelIndex = 0;
+                modelIndex = 1;
             int randomSpawnPoint = Random.Range(0, spawnPoints.Length);
 
             if (modelIndex >= 0 && modelIndex < playerPrefabs.Length)

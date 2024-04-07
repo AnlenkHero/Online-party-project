@@ -116,7 +116,7 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
     private float _jumpTimeoutDelta;
     private float _fallTimeoutDelta;
 
-    [HideInInspector] public bool isAnimationPlaying;
+     public bool isAnimationPlaying;
     private int _animIDSpeed;
     private int _animIDGrounded;
     private int _animIDJump;
@@ -141,7 +141,7 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
         if (!view.IsMine || isAnimationPlaying)
             return;
 
-        Debug.Log(PlayerList.Players.Count);
+//        Debug.Log(PlayerList.Players.Count);
         if (Input.GetKeyDown(KeyCode.C))
         {
             if (Physics.Raycast(mainCamera.transform.position, mainCamera.transform.forward, out var hit, 100))
@@ -258,6 +258,7 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
         if (_previousInteractableInRange != null)
         {
             _previousInteractableInRange.Interact();
+            _previousInteractableInRange = null;
         }
     }
 
@@ -276,7 +277,7 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
         Vector3 currentPosition = transform.position;
         foreach (var hitCollider in hitColliders)
         {
-            if (!hitCollider.TryGetComponent(out IInteractable interactable)) continue;
+            if (!hitCollider.TryGetComponent(out IInteractable interactable) || !interactable.IsInteractable) continue;
 
             Vector3 directionToTarget = hitCollider.transform.position - currentPosition;
             float dSqrToTarget = directionToTarget.sqrMagnitude;
@@ -526,6 +527,7 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
             input.OnOpenHideTauntMenu += ToggleHideTauntMenuInput;
             input.OnInteract += InteractWithObject;
             ReviveAnimation.OnPlayerRevived += OnPlayerSpawned;
+            VideoTimelineController.OnTimelineStarted += () =>  input.SetCursorState(false);
             AssignAnimationIDs();
 
             _jumpTimeoutDelta = jumpTimeout;

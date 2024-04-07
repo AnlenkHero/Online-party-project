@@ -6,6 +6,7 @@ using UnityEngine;
 
 public abstract class AnimationManager : MonoBehaviour, IInteractable
 {
+    public bool IsInteractable { get; set; } = true;
     public string Description => "Press E to play animation";
     [SerializeField] protected List<string> animationNames;
     [SerializeField] protected Animator animator;
@@ -22,51 +23,34 @@ public abstract class AnimationManager : MonoBehaviour, IInteractable
         }
     }
 
-    protected void Update()
-    {
-        CheckAnimationEnd(() =>
-            {
-                IsAnimationPlaying = false;
-                OnAnimationEnd(CallbackAfterAllAnimations);
-            }
-        );
-    }
-
     protected void AddAnimationToQueue(string animationName)
     {
         animationQueue.Enqueue(animationName);
     }
 
-    protected void OnAnimationEnd(Action callbackAfterAllAnimations)
+    public void OnAnimationEnd()
     {
+        IsAnimationPlaying = false;
         if (animationQueue.Count > 0)
         {
             var nextAnimation = animationQueue.Dequeue();
             animator.SetTrigger(nextAnimation);
             IsAnimationPlaying = true;
         }
-        else
+        else if (!IsAnimationPlaying)
         {
-            callbackAfterAllAnimations?.Invoke();
+            CallbackAfterAllAnimations();
         }
     }
 
-    protected void CheckAnimationEnd(Action callback)
-    {
-        if (IsAnimationPlaying && animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1 &&
-            !animator.IsInTransition(0))
-        {
-            callback?.Invoke();
-        }
-    }
 
     public void Interact()
     {
         HideInfo();
-        photonView.RPC(nameof(DefaultStartAnimationInteraction),RpcTarget.All);
+        photonView.RPC(nameof(DefaultStartAnimationInteraction), RpcTarget.All);
         photonView.RPC(nameof(AnimationStartInteraction), RpcTarget.All);
     }
-    
+
     public void ShowInfo()
     {
         if (_isPopUpShown) return;
@@ -85,13 +69,21 @@ public abstract class AnimationManager : MonoBehaviour, IInteractable
     [PunRPC]
     public void DefaultStartAnimationInteraction()
     {
-        animator.SetTrigger(animationQueue.First());
-        IsAnimationPlaying = true;
+        if (animationQueue.Count > 0)
+        {
+            IsInteractable = false;
+            IsAnimationPlaying = true;
+            var nextAnimation = animationQueue.Dequeue();
+            animator.SetTrigger(nextAnimation);
+        }
     }
 
     [PunRPC]
     public abstract void AnimationStartInteraction();
 
     [PunRPC]
-    protected abstract void CallbackAfterAllAnimations();
+    protected virtual void CallbackAfterAllAnimations()
+    {
+        Debug.Log("OnAnimationEnd in AnimationManager called");
+    }
 }
