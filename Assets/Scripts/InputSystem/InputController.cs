@@ -12,8 +12,7 @@ namespace InputSystem
         public Vector2 Look { get; private set; }
         public bool Jump { get; private set; }
         public bool Sprint { get; private set; }
-
-
+        
         [Header("Movement Settings")] 
         public bool analogMovement;
 
@@ -23,6 +22,7 @@ namespace InputSystem
 
         public event Action OnOpenHideTauntMenu;
         public event Action OnInteract;
+        public event Action OnMouseClick;
 
 
         private void Awake()
@@ -42,12 +42,13 @@ namespace InputSystem
             _inputInstructions.Player.Jump.canceled += ctx => Jump = ctx.ReadValueAsButton();
             _inputInstructions.Player.Sprint.performed += ctx => Sprint = ctx.ReadValueAsButton();
             _inputInstructions.Player.Sprint.canceled += ctx => Sprint = ctx.ReadValueAsButton();
-            _inputInstructions.Player.OpenTauntMenu.performed += ctx => OnOpenHideTauntMenu?.Invoke();
             _inputInstructions.Player.Move.performed += ctx => Move = ctx.ReadValue<Vector2>();
             _inputInstructions.Player.Move.canceled += ctx => Move = Vector2.zero;
             _inputInstructions.Player.Look.performed += ctx => OnLook(ctx.ReadValue<Vector2>());
             _inputInstructions.Player.Look.canceled += ctx => Look = Vector2.zero;
+            _inputInstructions.Player.OpenTauntMenu.performed += ctx => OnOpenHideTauntMenu?.Invoke();
             _inputInstructions.Player.Interact.performed += ctx => OnInteract?.Invoke();
+            _inputInstructions.Player.MouseClick.performed += ctx => OnMouseClick?.Invoke();
         }
 
 

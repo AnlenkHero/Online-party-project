@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using Photon.Pun;
 using UnityEngine;
 
@@ -22,16 +23,18 @@ public class PopupManager : MonoBehaviour
     }
 
     
-    private void Update()
+    private void LateUpdate()
     {
         if (currentChatBubbleInstance != null)
         {
-            currentChatBubbleInstance.transform.rotation = Quaternion.LookRotation(Camera.main.transform.forward);
+            var rotation = Camera.main.transform.rotation;
+            currentChatBubbleInstance.transform.LookAt(
+                currentChatBubbleInstance.transform.position + rotation * Vector3.forward, rotation * Vector3.up);
         }
     }
     
 
-    public static void ShowPanelAboveObject(Transform parentTransform, Vector3 position, string info)
+    public static void ShowPanelAboveObject(Transform parentTransform, Vector3 position, string info, [CanBeNull] Sprite chatBubbleImage = null)
     {
         if (_instance.currentChatBubbleInstance != null)
         {
@@ -41,7 +44,7 @@ public class PopupManager : MonoBehaviour
         _instance.currentChatBubbleInstance =
             Instantiate(_instance.chatBubblePrefab, parentTransform);
         _instance.currentChatBubbleInstance.transform.localPosition = position;
-        _instance.currentChatBubbleInstance.SetData(info);
+        _instance.currentChatBubbleInstance.SetData(info, chatBubbleImage);
     }
 
     public static void HidePanel()

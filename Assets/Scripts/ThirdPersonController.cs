@@ -3,6 +3,7 @@ using InputSystem;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using Random = UnityEngine.Random;
 
@@ -116,7 +117,7 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
     private float _jumpTimeoutDelta;
     private float _fallTimeoutDelta;
 
-     public bool isAnimationPlaying;
+    public bool isAnimationPlaying;
     private int _animIDSpeed;
     private int _animIDGrounded;
     private int _animIDJump;
@@ -154,10 +155,6 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
             }
         }
 
-        if (_isFollowing)
-        {
-            Follow();
-        }
         else
         {
             DetectInteractableObjects();
@@ -526,8 +523,8 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
             CutsceneManager.OnCutsceneEnded += () => isAnimationPlaying = false;
             input.OnOpenHideTauntMenu += ToggleHideTauntMenuInput;
             input.OnInteract += InteractWithObject;
+            input.OnMouseClick += ClickMouse;
             ReviveAnimation.OnPlayerRevived += OnPlayerSpawned;
-            VideoTimelineController.OnTimelineStarted += () =>  input.SetCursorState(false);
             AssignAnimationIDs();
 
             _jumpTimeoutDelta = jumpTimeout;
@@ -539,6 +536,16 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
             Camera otherPlayerCamera = GetComponentInChildren<Camera>();
             if (otherPlayerCamera != null)
                 otherPlayerCamera.gameObject.SetActive(false);
+        }
+    }
+
+    private void ClickMouse()
+    {
+        if (Physics.Raycast(mainCamera.transform.position, mainCamera.transform.forward, out var hit, 100))
+        {
+            Debug.Log(hit.transform.name);
+            ILeftMouseClick clickComponent = hit.transform.GetComponent<ILeftMouseClick>();
+            clickComponent?.ClickMouse(hit);
         }
     }
 

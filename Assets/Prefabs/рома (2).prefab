@@ -657,7 +657,7 @@ SkinnedMeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: -2813467912831258332, guid: 86f083ebe7c79e44d924b0f68a394ab9, type: 3}
-  - {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  - {fileID: -8274133419916619345, guid: 86f083ebe7c79e44d924b0f68a394ab9, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -814,6 +814,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6daaa218f814f4788812f2570722a60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rotationSpeed: 720
 --- !u!114 &5301223203538786173
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -826,7 +827,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7419477b36748e5bbc23e1d0eed0d31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  modelName: Roma(text)
+  modelName: Roma
 --- !u!65 &3224729480682691261
 BoxCollider:
   m_ObjectHideFlags: 0

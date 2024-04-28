@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Photon.Pun;
 using UnityEngine;
 
 public abstract class AnimationManager : MonoBehaviour, IInteractable
 {
     public bool IsInteractable { get; set; } = true;
-    public string Description => "Press E to play animation";
+    public string Description => "Press E to revive players";
     [SerializeField] protected List<string> animationNames;
     [SerializeField] protected Animator animator;
     [SerializeField] protected PhotonView photonView;
+    [SerializeField] protected Sprite icon;
     protected Queue<string> animationQueue = new();
     private bool IsAnimationPlaying;
     private bool _isPopUpShown;
@@ -55,7 +54,7 @@ public abstract class AnimationManager : MonoBehaviour, IInteractable
     {
         if (_isPopUpShown) return;
 
-        PopupManager.ShowPanelAboveObject(transform, Vector3.up, Description);
+        PopupManager.ShowPanelAboveObject(transform, Vector3.up, Description, icon);
         _isPopUpShown = true;
     }
 

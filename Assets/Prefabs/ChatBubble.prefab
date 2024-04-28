@@ -338,6 +338,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bubbleText: {fileID: 2321147876800187408}
+  icon: {fileID: 6414513478801079490}
 --- !u!1 &3728437068281146895
 GameObject:
   m_ObjectHideFlags: 0
