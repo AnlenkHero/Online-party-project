@@ -244,7 +244,7 @@ public class ZXC : MonoBehaviourPunCallbacks
     {
         if (_previousInteractableInRange != null)
         {
-            _previousInteractableInRange.Interact();
+            _previousInteractableInRange.Interact(view);
         }
     }
 

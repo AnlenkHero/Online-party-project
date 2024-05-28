@@ -3,9 +3,10 @@ using UnityEngine;
 using UnityEngine.Video;
 
 [Serializable]
-public class NextVideoChoices
+public class RequiredVideoChoice
 {
     public string choiceName;
     public VideoClip videoClip;
     public Sprite buttonImage;
+    public bool isTransition;
 }

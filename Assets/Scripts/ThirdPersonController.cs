@@ -125,7 +125,8 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
     private int _animIDMotionSpeed;
     private bool _hasAnimator;
     private bool _openTauntMenu;
-
+    private bool _isInteracting;
+    private Vector3 _sitPosition;
 
     public static event Action OnPlayerSpawned;
 
@@ -142,6 +143,10 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
         if (!view.IsMine || isAnimationPlaying)
             return;
 
+        if (Input.GetMouseButtonDown(1))
+        {
+            Teleport();
+        }
 //        Debug.Log(PlayerList.Players.Count);
         if (Input.GetKeyDown(KeyCode.C))
         {
@@ -154,10 +159,15 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
                 }
             }
         }
-
+        
+        DetectInteractableObjects();
+        
+        if (_isInteracting)
+        {
+            //Sit();
+        }
         else
         {
-            DetectInteractableObjects();
             JumpAndGravity();
             GroundedCheck();
             Move();
@@ -254,8 +264,47 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
     {
         if (_previousInteractableInRange != null)
         {
-            _previousInteractableInRange.Interact();
+            _previousInteractableInRange.Interact(view);
             _previousInteractableInRange = null;
+        }
+    }
+
+    public void Sit(bool state)
+    {
+        view.RPC(nameof(SetBoolAnimation), RpcTarget.All, "Sitting",state);
+    }
+    
+    [PunRPC]
+    private void TriggerAnimation(string animationName)
+    {
+        animator.SetTrigger(animationName);
+    }
+    
+    [PunRPC]
+    private void SetBoolAnimation(string animationName,bool state)
+    {
+        animator.SetBool(animationName, state);
+    }
+    
+    public void SetupSit(Vector3 newPosition)
+    {
+        _isInteracting = true;
+        _sitPosition = newPosition;
+        Sit(true);
+    }
+    public void StandUp()
+    {
+        _isInteracting = false;
+        Sit(false);
+    }
+
+    private void Teleport()
+    {
+        if (Physics.Raycast(mainCamera.transform.position, mainCamera.transform.forward, out var hit, 100))
+        {
+            controller.enabled = false;
+            transform.position = hit.point;
+            controller.enabled = true;
         }
     }
 

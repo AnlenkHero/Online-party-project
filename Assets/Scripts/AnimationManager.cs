@@ -43,7 +43,7 @@ public abstract class AnimationManager : MonoBehaviour, IInteractable
     }
 
 
-    public void Interact()
+    public void Interact(PhotonView view)
     {
         HideInfo();
         photonView.RPC(nameof(DefaultStartAnimationInteraction), RpcTarget.All);

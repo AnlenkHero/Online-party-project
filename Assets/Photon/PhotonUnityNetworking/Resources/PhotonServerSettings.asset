@@ -79,6 +79,8 @@ MonoBehaviour:
   - ShowCurrentChoice
   - SetCurrentChoiceName
   - SetCurrentChoiceNameAndImage
+  - TriggerAnimation
+  - SetBoolAnimation
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

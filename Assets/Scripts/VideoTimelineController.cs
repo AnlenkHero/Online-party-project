@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Video;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.Linq;
 using Photon.Pun;
 using TMPro;
 using UnityEngine.Serialization;
@@ -13,7 +14,8 @@ public class VideoChoice
     public string videoChoiceName;
     public VideoClip videoClip;
     public Sprite buttonImage;
-    public List<NextVideoChoices> nextChoices;
+    public bool isTransition;
+    [FormerlySerializedAs("nextChoices")] public List<RequiredVideoChoice> nextRequiredChoices;
     public List<VideoChoice> nextVideoChoices;
 }
 
@@ -39,7 +41,6 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
     [SerializeField] private Vector3 popUpOffset;
     [SerializeField] private Sprite icon;
 
-
     public void ShowInfo()
     {
         if (_isPopUpShown) return;
@@ -54,7 +55,7 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
         _isPopUpShown = false;
     }
 
-    public void Interact()
+    public void Interact(PhotonView photonView)
     {
         HideInfo();
         if (videoChoices.Count > 0)
@@ -81,7 +82,8 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
 
     void PlayVideoChoice(VideoChoice choice)
     {
-        _currentChoice = choice;
+        if(choice.isTransition)
+         _currentChoice = choice;
         string clipName = choice.videoClip.name;
         view.RPC(nameof(SetVideoClipAndPlay), RpcTarget.All, clipName, choice.videoChoiceName, choice.buttonImage.name);
     }
@@ -133,11 +135,12 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
     {
         vp.loopPointReached -= OnMovieFinished;
         view.RPC(nameof(ShowCurrentChoice), RpcTarget.All);
-        if (_currentChoice.nextChoices.Count > 0)
+
+        if (_currentChoice.nextRequiredChoices.Count > 0 && _currentChoice.nextRequiredChoices.Any(choice => choice.isTransition))
         {
             ShowNextChoices();
         }
-        else if (_currentChoice.nextVideoChoices.Count > 0)
+        else if (_currentChoice.nextVideoChoices.Count > 0 && _currentChoice.nextVideoChoices.Any(choice => choice.isTransition))
         {
             ShowVideoChoices();
         }
@@ -147,17 +150,18 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
         }
     }
 
+
     void ShowNextChoices()
     {
-        ShowChoices(_currentChoice.nextChoices, (index) =>
+        ShowChoices(_currentChoice.nextRequiredChoices, (index) =>
             {
                 choicesCanvas.SetActive(false);
-                string clipName = _currentChoice.nextChoices[index].videoClip.name;
+                string clipName = _currentChoice.nextRequiredChoices[index].videoClip.name;
                 view.RPC(nameof(SetVideoClipAndPlay), RpcTarget.AllBufferedViaServer, clipName,
-                    _currentChoice.nextChoices[index].choiceName, _currentChoice.nextChoices[index].buttonImage.name);
-                _currentChoice.nextChoices.RemoveAt(index);
-            }, _currentChoice.nextChoices.ConvertAll(choice => choice.choiceName),
-            _currentChoice.nextChoices.ConvertAll(choice => choice.buttonImage));
+                    _currentChoice.nextRequiredChoices[index].choiceName, _currentChoice.nextRequiredChoices[index].buttonImage.name);
+                _currentChoice.nextRequiredChoices.RemoveAt(index);
+            }, _currentChoice.nextRequiredChoices.ConvertAll(choice => choice.choiceName),
+            _currentChoice.nextRequiredChoices.ConvertAll(choice => choice.buttonImage));
     }
 
     void ShowVideoChoices()
@@ -166,6 +170,8 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
             {
                 choicesCanvas.SetActive(false);
                 PlayVideoChoice(_currentChoice.nextVideoChoices[index]);
+                if(!_currentChoice.nextVideoChoices[index].isTransition)
+                    _currentChoice.nextVideoChoices.RemoveAt(index);
             }, _currentChoice.nextVideoChoices.ConvertAll(choice => choice.videoChoiceName),
             _currentChoice.nextVideoChoices.ConvertAll(choice => choice.buttonImage));
     }

@@ -26,7 +26,7 @@ public class VideoPlayerInteractor : MonoBehaviour, IInteractable
         _isPopUpShown = false;
     }
 
-    public void Interact()
+    public void Interact(PhotonView view)
     {
         HideInfo();
         photonView.RPC(nameof(PlayVideo), RpcTarget.All);
