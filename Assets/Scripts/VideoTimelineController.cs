@@ -8,19 +8,11 @@ using Photon.Pun;
 using TMPro;
 using UnityEngine.Serialization;
 
-[System.Serializable]
-public class VideoChoice
-{
-    public string videoChoiceName;
-    public VideoClip videoClip;
-    public Sprite buttonImage;
-    public bool isTransition;
-    [FormerlySerializedAs("nextChoices")] public List<RequiredVideoChoice> nextRequiredChoices;
-    public List<VideoChoice> nextVideoChoices;
-}
+
 
 public class VideoTimelineController : MonoBehaviour, IInteractable
 {
+ 
     [SerializeField] private PhotonView view;
     public VideoPlayer videoPlayer;
     public GameObject choicesCanvas;
@@ -29,12 +21,12 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
 
     [FormerlySerializedAs("currentChoiceName")]
     public TextMeshProUGUI currentChoiceNameTMP;
+    
 
-    public Image currentChoiceImage;
     public List<VideoChoice> videoChoices;
     private VideoChoice _currentChoice;
     private string _currentChoiceName;
-    private Sprite _currentChoiceSprite;
+
     public bool IsInteractable { get; set; } = true;
     public string Description => "Press E to play the video";
     private bool _isPopUpShown;
@@ -62,7 +54,7 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
         {
             SetInitialChoice();
             view.RPC(nameof(SetVideoClipAndPlay), RpcTarget.All, videoChoices[0].videoClip.name,
-                videoChoices[0].videoChoiceName, videoChoices[0].buttonImage.name);
+                videoChoices[0].videoChoiceName);
         }
 
         view.RPC(nameof(StopInteraction), RpcTarget.AllBufferedViaServer);
@@ -85,16 +77,16 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
         if(choice.isTransition)
          _currentChoice = choice;
         string clipName = choice.videoClip.name;
-        view.RPC(nameof(SetVideoClipAndPlay), RpcTarget.All, clipName, choice.videoChoiceName, choice.buttonImage.name);
+        view.RPC(nameof(SetVideoClipAndPlay), RpcTarget.All, clipName, choice.videoChoiceName);
     }
 
     [PunRPC]
-    private void SetVideoClipAndPlay(string videoClipName, string choiceName, string choiceImage)
+    private void SetVideoClipAndPlay(string videoClipName, string choiceName)
     {
         VideoClip clipToPlay = FindVideoClipByName(videoClipName);
         if (clipToPlay != null)
         {
-            view.RPC(nameof(SetCurrentChoiceNameAndImage), RpcTarget.All, choiceName, choiceImage);
+            view.RPC(nameof(SetCurrentChoiceNameAndImage), RpcTarget.All, choiceName);
             videoPlayer.clip = clipToPlay;
             videoPlayer.Play();
             videoPlayer.loopPointReached += OnMovieFinished;
@@ -110,25 +102,20 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
         return Resources.Load<VideoClip>("Videos/" + videoClipName);
     }
     
-    private Sprite FindSpriteByName(string spriteName)
-    {
-        return Resources.Load<Sprite>("Sprites/" + spriteName);
-    }
+  
 
     [PunRPC]
     private void ShowCurrentChoice()
     {
         choicesCanvas.SetActive(true);
         currentChoiceNameTMP.text = _currentChoiceName;
-        currentChoiceImage.sprite = _currentChoiceSprite;
     }
 
     [PunRPC]
-    private void SetCurrentChoiceNameAndImage(string choiceName, string choiceImage)
+    private void SetCurrentChoiceNameAndImage(string choiceName)
     {
         choicesCanvas.SetActive(false);
         _currentChoiceName = choiceName;
-        _currentChoiceSprite = FindSpriteByName(choiceImage);
     }
 
     void OnMovieFinished(VideoPlayer vp)
@@ -158,25 +145,30 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
                 choicesCanvas.SetActive(false);
                 string clipName = _currentChoice.nextRequiredChoices[index].videoClip.name;
                 view.RPC(nameof(SetVideoClipAndPlay), RpcTarget.AllBufferedViaServer, clipName,
-                    _currentChoice.nextRequiredChoices[index].choiceName, _currentChoice.nextRequiredChoices[index].buttonImage.name);
+                    _currentChoice.nextRequiredChoices[index].choiceName);
                 _currentChoice.nextRequiredChoices.RemoveAt(index);
-            }, _currentChoice.nextRequiredChoices.ConvertAll(choice => choice.choiceName),
-            _currentChoice.nextRequiredChoices.ConvertAll(choice => choice.buttonImage));
+            }, _currentChoice.nextRequiredChoices.ConvertAll(choice => choice.choiceName));
     }
 
     void ShowVideoChoices()
     {
-        ShowChoices(_currentChoice.nextVideoChoices, (index) =>
+        if (_currentChoice.nextVideoChoices.Count == 1)
+        {
+            PlayVideoChoice(_currentChoice.nextVideoChoices[0]);
+        }
+        else
+        {
+            ShowChoices(_currentChoice.nextVideoChoices, (index) =>
             {
                 choicesCanvas.SetActive(false);
                 PlayVideoChoice(_currentChoice.nextVideoChoices[index]);
                 if(!_currentChoice.nextVideoChoices[index].isTransition)
                     _currentChoice.nextVideoChoices.RemoveAt(index);
-            }, _currentChoice.nextVideoChoices.ConvertAll(choice => choice.videoChoiceName),
-            _currentChoice.nextVideoChoices.ConvertAll(choice => choice.buttonImage));
+            }, _currentChoice.nextVideoChoices.ConvertAll(choice => choice.videoChoiceName));
+        }
     }
 
-    void ShowChoices<T>(List<T> choices, Action<int> callback, List<string> names, List<Sprite> buttonImages)
+    void ShowChoices<T>(List<T> choices, Action<int> callback, List<string> names)
     {
         ClearChoices();
 
@@ -187,7 +179,7 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
             int choiceIndex = i;
             TimelineButton button = Instantiate(choiceButtonPrefab, choicesPanel);
             button.gameObject.SetActive(true);
-            button.SetData(() => callback(choiceIndex), names[i], buttonImages[i]);
+            button.SetData(() => callback(choiceIndex), names[i]);
         }
     }
 

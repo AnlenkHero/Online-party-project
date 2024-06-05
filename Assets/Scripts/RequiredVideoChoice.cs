@@ -7,6 +7,5 @@ public class RequiredVideoChoice
 {
     public string choiceName;
     public VideoClip videoClip;
-    public Sprite buttonImage;
     public bool isTransition;
 }

@@ -1302,7 +1302,7 @@ MonoBehaviour:
   landingAudioClip: {fileID: 8300000, guid: 72f526a6a9890f643a88e85a61c86c8a, type: 3}
   footstepAudioClips:
   - {fileID: 8300000, guid: 274649b0e221539409070ebf6c18918b, type: 3}
-  footstepAudioVolume: 0.5
+  footstepAudioVolume: 0.388
   jumpHeight: 1.2
   gravity: -15
   jumpTimeout: 0.5

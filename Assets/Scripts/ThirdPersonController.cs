@@ -271,7 +271,7 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
 
     public void Sit(bool state)
     {
-        view.RPC(nameof(SetBoolAnimation), RpcTarget.All, "Sitting",state);
+        view.RPC(nameof(SetBoolAnimation), RpcTarget.AllBufferedViaServer, "Sitting",state);
     }
     
     [PunRPC]
