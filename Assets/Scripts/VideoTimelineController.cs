@@ -1,31 +1,27 @@
 using System;
-using UnityEngine;
-using UnityEngine.Video;
-using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
+using UnityEngine.Video;
 using Photon.Pun;
 using TMPro;
-using UnityEngine.Serialization;
-
-
+using XNode;
 
 public class VideoTimelineController : MonoBehaviour, IInteractable
 {
- 
     [SerializeField] private PhotonView view;
     public VideoPlayer videoPlayer;
     public GameObject choicesCanvas;
     public TimelineButton choiceButtonPrefab;
     public Transform choicesPanel;
 
-    [FormerlySerializedAs("currentChoiceName")]
     public TextMeshProUGUI currentChoiceNameTMP;
-    
 
-    public List<VideoChoice> videoChoices;
-    private VideoChoice _currentChoice;
+    public VideoChoiceNode initialChoiceNode;
+    private VideoChoiceNode _currentChoiceNode;
     private string _currentChoiceName;
+
+    private HashSet<Node> usedNodes = new HashSet<Node>();
 
     public bool IsInteractable { get; set; } = true;
     public string Description => "Press E to play the video";
@@ -50,11 +46,10 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
     public void Interact(PhotonView photonView)
     {
         HideInfo();
-        if (videoChoices.Count > 0)
+        if (initialChoiceNode != null)
         {
             SetInitialChoice();
-            view.RPC(nameof(SetVideoClipAndPlay), RpcTarget.All, videoChoices[0].videoClip.name,
-                videoChoices[0].videoChoiceName);
+            view.RPC(nameof(SetVideoClipAndPlay), RpcTarget.All, initialChoiceNode.videoClip.name, initialChoiceNode.videoChoiceName);
         }
 
         view.RPC(nameof(StopInteraction), RpcTarget.AllBufferedViaServer);
@@ -62,7 +57,7 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
 
     private void SetInitialChoice()
     {
-        _currentChoice = videoChoices[0];
+        _currentChoiceNode = initialChoiceNode;
     }
 
     [PunRPC]
@@ -71,13 +66,18 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
         IsInteractable = false;
     }
 
-
-    void PlayVideoChoice(VideoChoice choice)
+    void PlayVideoChoice(VideoChoiceNode choiceNode)
     {
-        if(choice.isTransition)
-         _currentChoice = choice;
-        string clipName = choice.videoClip.name;
-        view.RPC(nameof(SetVideoClipAndPlay), RpcTarget.All, clipName, choice.videoChoiceName);
+        if (choiceNode.isTransition)
+            _currentChoiceNode = choiceNode;
+        string clipName = choiceNode.videoClip.name;
+        view.RPC(nameof(SetVideoClipAndPlay), RpcTarget.All, clipName, choiceNode.videoChoiceName);
+
+        // Mark node as used
+        if (!choiceNode.isTransition)
+        {
+            MarkNodeAsUsed(choiceNode);
+        }
     }
 
     [PunRPC]
@@ -101,8 +101,6 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
     {
         return Resources.Load<VideoClip>("Videos/" + videoClipName);
     }
-    
-  
 
     [PunRPC]
     private void ShowCurrentChoice()
@@ -123,13 +121,22 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
         vp.loopPointReached -= OnMovieFinished;
         view.RPC(nameof(ShowCurrentChoice), RpcTarget.All);
 
-        if (_currentChoice.nextRequiredChoices.Count > 0 && _currentChoice.nextRequiredChoices.Any(choice => choice.isTransition))
+        List<RequiredVideoChoiceNode> requiredChoices = GetConnectedNodes<RequiredVideoChoiceNode>(_currentChoiceNode, "nextRequiredChoices");
+        List<VideoChoiceNode> videoChoices = GetConnectedNodes<VideoChoiceNode>(_currentChoiceNode, "nextVideoChoices");
+
+        requiredChoices = FilterUsedNodes(requiredChoices);
+        videoChoices = FilterUsedNodes(videoChoices);
+
+        bool hasRequiredChoices = requiredChoices.Count > 0;
+        bool hasVideoChoices = videoChoices.Count > 0;
+
+        if (hasRequiredChoices)
         {
-            ShowNextChoices();
+            ShowNextChoices(requiredChoices);
         }
-        else if (_currentChoice.nextVideoChoices.Count > 0 && _currentChoice.nextVideoChoices.Any(choice => choice.isTransition))
+        else if (hasVideoChoices)
         {
-            ShowVideoChoices();
+            ShowVideoChoices(videoChoices);
         }
         else
         {
@@ -137,38 +144,42 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
         }
     }
 
-
-    void ShowNextChoices()
+    void ShowNextChoices(List<RequiredVideoChoiceNode> choices)
     {
-        ShowChoices(_currentChoice.nextRequiredChoices, (index) =>
-            {
-                choicesCanvas.SetActive(false);
-                string clipName = _currentChoice.nextRequiredChoices[index].videoClip.name;
-                view.RPC(nameof(SetVideoClipAndPlay), RpcTarget.AllBufferedViaServer, clipName,
-                    _currentChoice.nextRequiredChoices[index].choiceName);
-                _currentChoice.nextRequiredChoices.RemoveAt(index);
-            }, _currentChoice.nextRequiredChoices.ConvertAll(choice => choice.choiceName));
+        ShowChoices(choices, (index) =>
+        {
+            choicesCanvas.SetActive(false);
+            string clipName = choices[index].videoClip.name;
+            view.RPC(nameof(SetVideoClipAndPlay), RpcTarget.AllBufferedViaServer, clipName, choices[index].choiceName);
+
+            // Mark node as used
+            MarkNodeAsUsed(choices[index]);
+        }, choices.ConvertAll(choice => choice.choiceName));
     }
 
-    void ShowVideoChoices()
+    void ShowVideoChoices(List<VideoChoiceNode> choices)
     {
-        if (_currentChoice.nextVideoChoices.Count == 1)
+        if (choices.Count == 1)
         {
-            PlayVideoChoice(_currentChoice.nextVideoChoices[0]);
+            PlayVideoChoice(choices[0]);
         }
         else
         {
-            ShowChoices(_currentChoice.nextVideoChoices, (index) =>
+            ShowChoices(choices, (index) =>
             {
                 choicesCanvas.SetActive(false);
-                PlayVideoChoice(_currentChoice.nextVideoChoices[index]);
-                if(!_currentChoice.nextVideoChoices[index].isTransition)
-                    _currentChoice.nextVideoChoices.RemoveAt(index);
-            }, _currentChoice.nextVideoChoices.ConvertAll(choice => choice.videoChoiceName));
+                PlayVideoChoice(choices[index]);
+
+                // Mark node as used
+                if (!choices[index].isTransition)
+                {
+                    MarkNodeAsUsed(choices[index]);
+                }
+            }, choices.ConvertAll(choice => choice.videoChoiceName));
         }
     }
 
-    void ShowChoices<T>(List<T> choices, Action<int> callback, List<string> names)
+    void ShowChoices<T>(List<T> choices, Action<int> callback, List<string> names) where T : Node
     {
         ClearChoices();
 
@@ -183,7 +194,6 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
         }
     }
 
-
     void ClearChoices()
     {
         foreach (Transform child in choicesPanel)
@@ -196,5 +206,36 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
     {
         Debug.Log("Game Ended");
         choicesCanvas.SetActive(false);
+    }
+
+    private List<T> GetConnectedNodes<T>(Node node, string fieldName) where T : Node
+    {
+        NodePort port = node.GetPort(fieldName);
+        List<T> connectedNodes = new List<T>();
+
+        if (port != null)
+        {
+            for (int i = 0; i < port.ConnectionCount; i++)
+            {
+                NodePort connectedPort = port.GetConnection(i);
+                T connectedNode = connectedPort.node as T;
+                if (connectedNode != null)
+                {
+                    connectedNodes.Add(connectedNode);
+                }
+            }
+        }
+
+        return connectedNodes;
+    }
+
+    private void MarkNodeAsUsed(Node node)
+    {
+        usedNodes.Add(node);
+    }
+
+    private List<T> FilterUsedNodes<T>(List<T> nodes) where T : Node
+    {
+        return nodes.Where(node => !usedNodes.Contains(node)).ToList();
     }
 }

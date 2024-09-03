@@ -1,0 +1,624 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-9092516409605658795
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e319f1ca07434285a43f1f1af6214a2d, type: 3}
+  m_Name: Video Choice
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: -929.82526, y: -1141.1519}
+  ports:
+    keys:
+    - previousChoice
+    - nextRequiredChoices
+    - nextVideoChoices
+    values:
+    - _fieldName: previousChoice
+      _node: {fileID: -9092516409605658795}
+      _typeQualifiedName: VideoChoiceNode, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: nextVideoChoices
+        node: {fileID: -6536910113057806718}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: nextRequiredChoices
+      _node: {fileID: -9092516409605658795}
+      _typeQualifiedName: System.Collections.Generic.List`1[[RequiredVideoChoiceNode,
+        Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]],
+        mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+      connections: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: nextVideoChoices
+      _node: {fileID: -9092516409605658795}
+      _typeQualifiedName: System.Collections.Generic.List`1[[VideoChoiceNode, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0,
+        Culture=neutral, PublicKeyToken=b77a5c561934e089
+      connections: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  previousChoice: {fileID: 0}
+  nextRequiredChoices: []
+  nextVideoChoices: []
+  videoChoiceName: zxbcv
+  videoClip: {fileID: 32900000, guid: 0eacfaac4a746a24cb80115f0affc822, type: 3}
+  isTransition: 0
+--- !u!114 &-8966050658707375102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e319f1ca07434285a43f1f1af6214a2d, type: 3}
+  m_Name: Video Choice
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: -1896, y: -1016}
+  ports:
+    keys:
+    - previousChoice
+    - nextRequiredChoices
+    - nextVideoChoices
+    values:
+    - _fieldName: previousChoice
+      _node: {fileID: -8966050658707375102}
+      _typeQualifiedName: VideoChoiceNode, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: nextRequiredChoices
+      _node: {fileID: -8966050658707375102}
+      _typeQualifiedName: System.Collections.Generic.List`1[[RequiredVideoChoiceNode,
+        Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]],
+        mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+      connections: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: nextVideoChoices
+      _node: {fileID: -8966050658707375102}
+      _typeQualifiedName: System.Collections.Generic.List`1[[VideoChoiceNode, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0,
+        Culture=neutral, PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: previousChoice
+        node: {fileID: 1822381009218560764}
+        reroutePoints: []
+      - fieldName: previousChoice
+        node: {fileID: 3761984617991963790}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  previousChoice: {fileID: 0}
+  nextRequiredChoices: []
+  nextVideoChoices: []
+  videoChoiceName: "\u0444\u0456\u0432"
+  videoClip: {fileID: 32900000, guid: 2bba1f4bcdd1be04fa5e4542dc68d482, type: 3}
+  isTransition: 1
+--- !u!114 &-6536910113057806718
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e319f1ca07434285a43f1f1af6214a2d, type: 3}
+  m_Name: Video Choice
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: -1224, y: -1240}
+  ports:
+    keys:
+    - previousChoice
+    - nextRequiredChoices
+    - nextVideoChoices
+    values:
+    - _fieldName: previousChoice
+      _node: {fileID: -6536910113057806718}
+      _typeQualifiedName: VideoChoiceNode, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: nextVideoChoices
+        node: {fileID: 1822381009218560764}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: nextRequiredChoices
+      _node: {fileID: -6536910113057806718}
+      _typeQualifiedName: System.Collections.Generic.List`1[[RequiredVideoChoiceNode,
+        Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]],
+        mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+      connections: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: nextVideoChoices
+      _node: {fileID: -6536910113057806718}
+      _typeQualifiedName: System.Collections.Generic.List`1[[VideoChoiceNode, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0,
+        Culture=neutral, PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: previousChoice
+        node: {fileID: -1537688070271569641}
+        reroutePoints: []
+      - fieldName: previousChoice
+        node: {fileID: -9092516409605658795}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  previousChoice: {fileID: 0}
+  nextRequiredChoices: []
+  nextVideoChoices: []
+  videoChoiceName: xcvb
+  videoClip: {fileID: 32900000, guid: 1674f1fd1be869843b374c128bee032b, type: 3}
+  isTransition: 1
+--- !u!114 &-5689374406694412076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: Required Video Choice
+  m_EditorClassIdentifier: Assembly-CSharp::RequiredVideoChoiceNode
+  graph: {fileID: 11400000}
+  position: {x: -1352, y: -1368}
+  ports:
+    keys:
+    - previousChoice
+    values:
+    - _fieldName: previousChoice
+      _node: {fileID: -5689374406694412076}
+      _typeQualifiedName: VideoChoiceNode, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: nextRequiredChoices
+        node: {fileID: 1822381009218560764}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  previousChoice: {fileID: 0}
+  choiceName: 956423
+  videoClip: {fileID: 32900000, guid: 2bba1f4bcdd1be04fa5e4542dc68d482, type: 3}
+  isTransition: 1
+--- !u!114 &-2806223096117212173
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e319f1ca07434285a43f1f1af6214a2d, type: 3}
+  m_Name: Video Choice
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: -673.56104, y: -1236.1553}
+  ports:
+    keys:
+    - previousChoice
+    - nextRequiredChoices
+    - nextVideoChoices
+    values:
+    - _fieldName: previousChoice
+      _node: {fileID: -2806223096117212173}
+      _typeQualifiedName: VideoChoiceNode, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: nextVideoChoices
+        node: {fileID: -1537688070271569641}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: nextRequiredChoices
+      _node: {fileID: -2806223096117212173}
+      _typeQualifiedName: System.Collections.Generic.List`1[[RequiredVideoChoiceNode,
+        Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]],
+        mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+      connections: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: nextVideoChoices
+      _node: {fileID: -2806223096117212173}
+      _typeQualifiedName: System.Collections.Generic.List`1[[VideoChoiceNode, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0,
+        Culture=neutral, PublicKeyToken=b77a5c561934e089
+      connections: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  previousChoice: {fileID: 0}
+  nextRequiredChoices: []
+  nextVideoChoices: []
+  videoChoiceName: "\u0420\u041E\u041D\u0415\u041A"
+  videoClip: {fileID: 32900000, guid: d67b45171aed8d547a3255c053f5f300, type: 3}
+  isTransition: 0
+--- !u!114 &-1537688070271569641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e319f1ca07434285a43f1f1af6214a2d, type: 3}
+  m_Name: Video Choice
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: -936, y: -1320}
+  ports:
+    keys:
+    - previousChoice
+    - nextRequiredChoices
+    - nextVideoChoices
+    values:
+    - _fieldName: previousChoice
+      _node: {fileID: -1537688070271569641}
+      _typeQualifiedName: VideoChoiceNode, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: nextVideoChoices
+        node: {fileID: -6536910113057806718}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: nextRequiredChoices
+      _node: {fileID: -1537688070271569641}
+      _typeQualifiedName: System.Collections.Generic.List`1[[RequiredVideoChoiceNode,
+        Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]],
+        mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+      connections: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: nextVideoChoices
+      _node: {fileID: -1537688070271569641}
+      _typeQualifiedName: System.Collections.Generic.List`1[[VideoChoiceNode, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0,
+        Culture=neutral, PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: previousChoice
+        node: {fileID: -2806223096117212173}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  previousChoice: {fileID: 0}
+  nextRequiredChoices: []
+  nextVideoChoices: []
+  videoChoiceName: dasf
+  videoClip: {fileID: 32900000, guid: 1674f1fd1be869843b374c128bee032b, type: 3}
+  isTransition: 1
+--- !u!114 &-282184325072905544
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: Required Video Choice
+  m_EditorClassIdentifier: Assembly-CSharp::RequiredVideoChoiceNode
+  graph: {fileID: 11400000}
+  position: {x: -1592, y: -1336}
+  ports:
+    keys:
+    - previousChoice
+    values:
+    - _fieldName: previousChoice
+      _node: {fileID: -282184325072905544}
+      _typeQualifiedName: VideoChoiceNode, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: nextRequiredChoices
+        node: {fileID: 1822381009218560764}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  previousChoice: {fileID: 0}
+  choiceName: hfgnhjkh
+  videoClip: {fileID: 32900000, guid: f98538642f1a7f64c8117ed92f45be0d, type: 3}
+  isTransition: 1
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57ecd16d19314545ae2d33e06407d3ef, type: 3}
+  m_Name: New Video Choice Graph
+  m_EditorClassIdentifier: 
+  nodes:
+  - {fileID: -8966050658707375102}
+  - {fileID: 1822381009218560764}
+  - {fileID: 3761984617991963790}
+  - {fileID: -6536910113057806718}
+  - {fileID: -9092516409605658795}
+  - {fileID: -1537688070271569641}
+  - {fileID: 3870156090399293123}
+  - {fileID: 4808510268625522709}
+  - {fileID: 1142428737525456259}
+  - {fileID: -282184325072905544}
+  - {fileID: -5689374406694412076}
+  - {fileID: -2806223096117212173}
+--- !u!114 &1142428737525456259
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: Required Video Choice
+  m_EditorClassIdentifier: Assembly-CSharp::RequiredVideoChoiceNode
+  graph: {fileID: 11400000}
+  position: {x: -1192, y: -904}
+  ports:
+    keys:
+    - previousChoice
+    values:
+    - _fieldName: previousChoice
+      _node: {fileID: 1142428737525456259}
+      _typeQualifiedName: VideoChoiceNode, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: nextRequiredChoices
+        node: {fileID: 0}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  previousChoice: {fileID: 0}
+  choiceName: "\u0444\u0456\u0432"
+  videoClip: {fileID: 32900000, guid: f98538642f1a7f64c8117ed92f45be0d, type: 3}
+  isTransition: 1
+--- !u!114 &1822381009218560764
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e319f1ca07434285a43f1f1af6214a2d, type: 3}
+  m_Name: Video Choice
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: -1560, y: -1112}
+  ports:
+    keys:
+    - previousChoice
+    - nextRequiredChoices
+    - nextVideoChoices
+    values:
+    - _fieldName: previousChoice
+      _node: {fileID: 1822381009218560764}
+      _typeQualifiedName: VideoChoiceNode, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: nextVideoChoices
+        node: {fileID: -8966050658707375102}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: nextRequiredChoices
+      _node: {fileID: 1822381009218560764}
+      _typeQualifiedName: System.Collections.Generic.List`1[[RequiredVideoChoiceNode,
+        Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]],
+        mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: previousChoice
+        node: {fileID: -282184325072905544}
+        reroutePoints: []
+      - fieldName: previousChoice
+        node: {fileID: -5689374406694412076}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: nextVideoChoices
+      _node: {fileID: 1822381009218560764}
+      _typeQualifiedName: System.Collections.Generic.List`1[[VideoChoiceNode, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0,
+        Culture=neutral, PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: previousChoice
+        node: {fileID: -6536910113057806718}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  previousChoice: {fileID: 0}
+  nextRequiredChoices: []
+  nextVideoChoices: []
+  videoChoiceName: 21
+  videoClip: {fileID: 32900000, guid: e061381eecff8194c8f459a48b3f8742, type: 3}
+  isTransition: 1
+--- !u!114 &3761984617991963790
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e319f1ca07434285a43f1f1af6214a2d, type: 3}
+  m_Name: Video Choice
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: -1560, y: -920}
+  ports:
+    keys:
+    - previousChoice
+    - nextRequiredChoices
+    - nextVideoChoices
+    values:
+    - _fieldName: previousChoice
+      _node: {fileID: 3761984617991963790}
+      _typeQualifiedName: VideoChoiceNode, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: nextVideoChoices
+        node: {fileID: -8966050658707375102}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: nextRequiredChoices
+      _node: {fileID: 3761984617991963790}
+      _typeQualifiedName: System.Collections.Generic.List`1[[RequiredVideoChoiceNode,
+        Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]],
+        mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+      connections: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: nextVideoChoices
+      _node: {fileID: 3761984617991963790}
+      _typeQualifiedName: System.Collections.Generic.List`1[[VideoChoiceNode, Assembly-CSharp,
+        Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0,
+        Culture=neutral, PublicKeyToken=b77a5c561934e089
+      connections: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  previousChoice: {fileID: 0}
+  nextRequiredChoices: []
+  nextVideoChoices: []
+  videoChoiceName: 22
+  videoClip: {fileID: 32900000, guid: 08bc0777e44816245af85049c5354901, type: 3}
+  isTransition: 0
+--- !u!114 &3870156090399293123
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: Required Video Choice
+  m_EditorClassIdentifier: Assembly-CSharp::RequiredVideoChoiceNode
+  graph: {fileID: 11400000}
+  position: {x: -984, y: -840}
+  ports:
+    keys:
+    - previousChoice
+    values:
+    - _fieldName: previousChoice
+      _node: {fileID: 3870156090399293123}
+      _typeQualifiedName: VideoChoiceNode, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: nextRequiredChoices
+        node: {fileID: 0}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  previousChoice: {fileID: 0}
+  choiceName: "\u0456\u0432\u0444\u0430"
+  videoClip: {fileID: 32900000, guid: 017e99d932210954cbbeb33371b33a6d, type: 3}
+  isTransition: 1
+--- !u!114 &4808510268625522709
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: Required Video Choice
+  m_EditorClassIdentifier: Assembly-CSharp::RequiredVideoChoiceNode
+  graph: {fileID: 11400000}
+  position: {x: -664, y: -936}
+  ports:
+    keys:
+    - previousChoice
+    values:
+    - _fieldName: previousChoice
+      _node: {fileID: 4808510268625522709}
+      _typeQualifiedName: VideoChoiceNode, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: nextRequiredChoices
+        node: {fileID: 0}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  previousChoice: {fileID: 0}
+  choiceName: "\u0430"
+  videoClip: {fileID: 32900000, guid: 1674f1fd1be869843b374c128bee032b, type: 3}
+  isTransition: 1
