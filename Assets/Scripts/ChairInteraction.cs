@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class ChairInteraction : MonoBehaviour, IInteractable
 {
+    [SerializeField] private PopUpHandler popUpHandler;
     [SerializeField] private PhotonView photonView;
     public bool IsInteractable { get; set; } = true;
     public string Description { get; private set; } = "Press E to sit on chair";
@@ -17,16 +18,12 @@ public class ChairInteraction : MonoBehaviour, IInteractable
 
     public void ShowInfo()
     {
-        if (_isPopUpShown) return;
-
-        PopupManager.ShowPanelAboveObject(transform, Vector3.up, Description, icon);
-        _isPopUpShown = true;
+        popUpHandler.ShowPopUp(Description, transform);
     }
 
     public void HideInfo()
     {
-        PopupManager.HidePanel();
-        _isPopUpShown = false;
+        popUpHandler.HidePopUp();
     }
 
     public void Interact(PhotonView view)

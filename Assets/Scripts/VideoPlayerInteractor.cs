@@ -5,6 +5,7 @@ using UnityEngine.Video;
 
 public class VideoPlayerInteractor : MonoBehaviour, IInteractable
 {
+    [SerializeField] private PopUpHandler popUpHandler;
     [SerializeField] private PhotonView photonView;
     [SerializeField] private VideoPlayer videoPlayer;
     public bool IsInteractable { get; set; } = true;
@@ -14,16 +15,12 @@ public class VideoPlayerInteractor : MonoBehaviour, IInteractable
 
     public void ShowInfo()
     {
-        if (_isPopUpShown) return;
-
-        PopupManager.ShowPanelAboveObject(transform, Vector3.up, Description);
-        _isPopUpShown = true;
+        popUpHandler.ShowPopUp(Description, transform);
     }
 
     public void HideInfo()
     {
-        PopupManager.HidePanel();
-        _isPopUpShown = false;
+        popUpHandler.HidePopUp();
     }
 
     public void Interact(PhotonView view)

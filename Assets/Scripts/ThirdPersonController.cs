@@ -308,46 +308,68 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
         }
     }
 
-    private void DetectInteractableObjects()
+private void DetectInteractableObjects()
+{
+    if (Time.time < nextCheckTime)
+        return;
+
+    nextCheckTime = Time.time + checkRate;
+
+    Collider[] hitColliders = Physics.OverlapSphere(transform.position, interactableObjectRange, interactableLayerMask);
+    IInteractable closestInteractable = null;
+    float closestDistanceSqr = Mathf.Infinity;
+    Vector3 currentPosition = transform.position;
+
+    foreach (var hitCollider in hitColliders)
     {
-        if (Time.time < nextCheckTime)
-            return;
+        // Check if the object has an IInteractable component and if it is interactable
+        if (!hitCollider.TryGetComponent(out IInteractable interactable) || !interactable.IsInteractable)
+            continue;
 
-        nextCheckTime = Time.time + checkRate;
+        // Start with the hitCollider's transform position
+        Vector3 targetPosition = hitCollider.transform.position;
 
-        Collider[] hitColliders =
-            Physics.OverlapSphere(transform.position, interactableObjectRange, interactableLayerMask);
-        IInteractable closestInteractable = null;
-
-        float closestDistanceSqr = Mathf.Infinity;
-        Vector3 currentPosition = transform.position;
-        foreach (var hitCollider in hitColliders)
+        // Check if the object has a PopUpHandler to adjust the position using the popUpOffset
+        if (hitCollider.TryGetComponent(out PopUpHandler popUpHandler))
         {
-            if (!hitCollider.TryGetComponent(out IInteractable interactable) || !interactable.IsInteractable) continue;
-
-            Vector3 directionToTarget = hitCollider.transform.position - currentPosition;
-            float dSqrToTarget = directionToTarget.sqrMagnitude;
-            if (dSqrToTarget < closestDistanceSqr)
-            {
-                closestDistanceSqr = dSqrToTarget;
-                closestInteractable = interactable;
-            }
+            // Adjust the target position by adding the popUpOffset
+            targetPosition += popUpHandler.popUpOffset;
         }
 
-        if (closestInteractable != null && closestInteractable != _previousInteractableInRange)
+        // Calculate the squared distance between the current position and the adjusted target position
+        float dSqrToTarget = (targetPosition - currentPosition).sqrMagnitude;
+
+        // Find the closest interactable object based on the distance
+        if (dSqrToTarget < closestDistanceSqr)
         {
-            _previousInteractableInRange?.HideInfo();
-            closestInteractable.ShowInfo();
-            Debug.Log("Interactable object in range: " + closestInteractable);
-            _previousInteractableInRange = closestInteractable;
-        }
-        else if (closestInteractable == null && _previousInteractableInRange != null)
-        {
-            _previousInteractableInRange.HideInfo();
-            Debug.Log("No interactable object in range");
-            _previousInteractableInRange = null;
+            closestDistanceSqr = dSqrToTarget;
+            closestInteractable = interactable;
         }
     }
+
+    // If a new interactable object is found and it's different from the previous one
+    if (closestInteractable != null && closestInteractable != _previousInteractableInRange)
+    {
+        // Hide the info for the previously detected interactable
+        _previousInteractableInRange?.HideInfo();
+
+        // Use the interactable's ShowInfo method
+        closestInteractable.ShowInfo();
+        Debug.Log("Interactable object in range: " + closestInteractable);
+
+        // Update the previous interactable reference
+        _previousInteractableInRange = closestInteractable;
+    }
+    else if (closestInteractable == null && _previousInteractableInRange != null)
+    {
+        // If no interactable is found, hide the previous interactable's info
+        _previousInteractableInRange.HideInfo();
+        Debug.Log("No interactable object in range");
+
+        _previousInteractableInRange = null;
+    }
+}
+
 
 
     private void CameraRotation()

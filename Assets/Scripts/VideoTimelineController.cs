@@ -10,6 +10,8 @@ using XNode;
 public class VideoTimelineController : MonoBehaviour, IInteractable
 {
     [SerializeField] private PhotonView view;
+    [SerializeField] private PopUpHandler popUpHandler;
+
     public VideoPlayer videoPlayer;
     public GameObject choicesCanvas;
     public TimelineButton choiceButtonPrefab;
@@ -25,22 +27,16 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
 
     public bool IsInteractable { get; set; } = true;
     public string Description => "Press E to play the video";
-    private bool _isPopUpShown;
-    [SerializeField] private Vector3 popUpOffset;
-    [SerializeField] private Sprite icon;
+
 
     public void ShowInfo()
     {
-        if (_isPopUpShown) return;
-
-        PopupManager.ShowPanelAboveObject(transform, popUpOffset, Description, icon);
-        _isPopUpShown = true;
+        popUpHandler.ShowPopUp(Description, transform);
     }
 
     public void HideInfo()
     {
-        PopupManager.HidePanel();
-        _isPopUpShown = false;
+        popUpHandler.HidePopUp();
     }
 
     public void Interact(PhotonView photonView)
@@ -49,7 +45,8 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
         if (initialChoiceNode != null)
         {
             SetInitialChoice();
-            view.RPC(nameof(SetVideoClipAndPlay), RpcTarget.All, initialChoiceNode.videoClip.name, initialChoiceNode.videoChoiceName);
+            view.RPC(nameof(SetVideoClipAndPlay), RpcTarget.All, initialChoiceNode.videoClip.name,
+                initialChoiceNode.videoChoiceName);
         }
 
         view.RPC(nameof(StopInteraction), RpcTarget.AllBufferedViaServer);
@@ -121,7 +118,8 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
         vp.loopPointReached -= OnMovieFinished;
         view.RPC(nameof(ShowCurrentChoice), RpcTarget.All);
 
-        List<RequiredVideoChoiceNode> requiredChoices = GetConnectedNodes<RequiredVideoChoiceNode>(_currentChoiceNode, "nextRequiredChoices");
+        List<RequiredVideoChoiceNode> requiredChoices =
+            GetConnectedNodes<RequiredVideoChoiceNode>(_currentChoiceNode, "nextRequiredChoices");
         List<VideoChoiceNode> videoChoices = GetConnectedNodes<VideoChoiceNode>(_currentChoiceNode, "nextVideoChoices");
 
         requiredChoices = FilterUsedNodes(requiredChoices);

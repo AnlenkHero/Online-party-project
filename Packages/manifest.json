@@ -1,6 +1,14 @@
 {
+  "scopedRegistries": [
+    {
+      "name": "iBicha",
+      "url": "https://registry.npmjs.com",
+      "scopes": ["com.ibicha"]
+    }
+  ],
   "dependencies": {
     "com.github.siccity.xnode": "https://github.com/Siccity/xNode.git",
+    "com.ibicha.youtube-player": "3.3.1",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tilemap": "1.0.0",
     "com.unity.animation.rigging": "1.2.1",

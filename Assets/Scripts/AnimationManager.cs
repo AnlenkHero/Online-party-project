@@ -4,6 +4,7 @@ using UnityEngine;
 
 public abstract class AnimationManager : MonoBehaviour, IInteractable
 {
+    [SerializeField] private PopUpHandler popUpHandler;
     public bool IsInteractable { get; set; } = true;
     public string Description => "Press E to revive players";
     [SerializeField] protected List<string> animationNames;
@@ -52,16 +53,12 @@ public abstract class AnimationManager : MonoBehaviour, IInteractable
 
     public void ShowInfo()
     {
-        if (_isPopUpShown) return;
-
-        PopupManager.ShowPanelAboveObject(transform, Vector3.up, Description, icon);
-        _isPopUpShown = true;
+        popUpHandler.ShowPopUp(Description, transform);
     }
 
     public void HideInfo()
     {
-        PopupManager.HidePanel();
-        _isPopUpShown = false;
+        popUpHandler.HidePopUp();
     }
 
 
