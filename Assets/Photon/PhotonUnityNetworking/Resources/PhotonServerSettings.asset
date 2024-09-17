@@ -82,6 +82,18 @@ MonoBehaviour:
   - TriggerAnimation
   - SetBoolAnimation
   - PlayYoutubeVideoByLink
+  - OnSliderValueChanged
+  - ResetTime
+  - SetTotalTime
+  - UpdateCurrentTimeText
+  - UpdateCurrentVideoTime
+  - UpdateTotalTimeText
+  - OnPlayButtonClicked
+  - ResetVideoTime
+  - SetTimeForAll
+  - SetTotalTimeForAll
+  - SyncVideoTime
+  - SetVideoTime
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

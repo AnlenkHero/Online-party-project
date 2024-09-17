@@ -3,7 +3,7 @@
 public interface IInteractable
 {
     public bool IsInteractable { get; set; }
-    public string InteractionPrompt => "Press E to interact";
+    public bool IsUiInteraction { get; set; }
     public string Description { get; }
     public void Interact(PhotonView view);
     public void ShowInfo();

@@ -6,7 +6,7 @@ using Random = UnityEngine.Random;
 
 public class SpawnPlayers : MonoBehaviourPunCallbacks
 {
-    [SerializeField] private PhotonView photonView;
+    [SerializeField] private new PhotonView photonView;
     public GameObject[] playerPrefabs;
     public Transform[] spawnPoints;
     private GameObject _player;

@@ -26,6 +26,7 @@ public class VideoTimelineController : MonoBehaviour, IInteractable
     private HashSet<Node> usedNodes = new HashSet<Node>();
 
     public bool IsInteractable { get; set; } = true;
+    public bool IsUiInteraction { get; set; }
     public string Description => "Press E to play the video";
 
 

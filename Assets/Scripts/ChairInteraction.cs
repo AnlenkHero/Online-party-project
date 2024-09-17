@@ -9,6 +9,7 @@ public class ChairInteraction : MonoBehaviour, IInteractable
     [SerializeField] private PopUpHandler popUpHandler;
     [SerializeField] private PhotonView photonView;
     public bool IsInteractable { get; set; } = true;
+    public bool IsUiInteraction { get; set; }
     public string Description { get; private set; } = "Press E to sit on chair";
     public bool _isSitting;
     [SerializeField] private CinemachineVirtualCamera tvCamera;

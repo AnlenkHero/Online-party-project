@@ -147,6 +147,7 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
         {
             Teleport();
         }
+
 //        Debug.Log(PlayerList.Players.Count);
         if (Input.GetKeyDown(KeyCode.C))
         {
@@ -159,9 +160,9 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
                 }
             }
         }
-        
+
         DetectInteractableObjects();
-        
+
         if (_isInteracting)
         {
             //Sit();
@@ -262,36 +263,37 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
 
     private void InteractWithObject()
     {
-        if (_previousInteractableInRange != null)
-        {
-            _previousInteractableInRange.Interact(view);
-            _previousInteractableInRange = null;
-        }
+        if (_previousInteractableInRange == null) return;
+        _previousInteractableInRange.Interact(view);
+        if (_previousInteractableInRange.IsUiInteraction)
+            input.SetCursorState(false);
+        _previousInteractableInRange = null;
     }
 
     public void Sit(bool state)
     {
-        view.RPC(nameof(SetBoolAnimation), RpcTarget.AllBufferedViaServer, "Sitting",state);
+        view.RPC(nameof(SetBoolAnimation), RpcTarget.AllBufferedViaServer, "Sitting", state);
     }
-    
+
     [PunRPC]
     private void TriggerAnimation(string animationName)
     {
         animator.SetTrigger(animationName);
     }
-    
+
     [PunRPC]
-    private void SetBoolAnimation(string animationName,bool state)
+    private void SetBoolAnimation(string animationName, bool state)
     {
         animator.SetBool(animationName, state);
     }
-    
+
     public void SetupSit(Vector3 newPosition)
     {
         _isInteracting = true;
         _sitPosition = newPosition;
         Sit(true);
     }
+
     public void StandUp()
     {
         _isInteracting = false;
@@ -308,68 +310,68 @@ public class ThirdPersonController : MonoBehaviourPunCallbacks
         }
     }
 
-private void DetectInteractableObjects()
-{
-    if (Time.time < nextCheckTime)
-        return;
-
-    nextCheckTime = Time.time + checkRate;
-
-    Collider[] hitColliders = Physics.OverlapSphere(transform.position, interactableObjectRange, interactableLayerMask);
-    IInteractable closestInteractable = null;
-    float closestDistanceSqr = Mathf.Infinity;
-    Vector3 currentPosition = transform.position;
-
-    foreach (var hitCollider in hitColliders)
+    private void DetectInteractableObjects()
     {
-        // Check if the object has an IInteractable component and if it is interactable
-        if (!hitCollider.TryGetComponent(out IInteractable interactable) || !interactable.IsInteractable)
-            continue;
+        if (Time.time < nextCheckTime)
+            return;
 
-        // Start with the hitCollider's transform position
-        Vector3 targetPosition = hitCollider.transform.position;
+        nextCheckTime = Time.time + checkRate;
 
-        // Check if the object has a PopUpHandler to adjust the position using the popUpOffset
-        if (hitCollider.TryGetComponent(out PopUpHandler popUpHandler))
+        Collider[] hitColliders =
+            Physics.OverlapSphere(transform.position, interactableObjectRange, interactableLayerMask);
+        IInteractable closestInteractable = null;
+        float closestDistanceSqr = Mathf.Infinity;
+        Vector3 currentPosition = transform.position;
+
+        foreach (var hitCollider in hitColliders)
         {
-            // Adjust the target position by adding the popUpOffset
-            targetPosition += popUpHandler.popUpOffset;
+            // Check if the object has an IInteractable component and if it is interactable
+            if (!hitCollider.TryGetComponent(out IInteractable interactable) || !interactable.IsInteractable)
+                continue;
+
+            // Start with the hitCollider's transform position
+            Vector3 targetPosition = hitCollider.transform.position;
+
+            // Check if the object has a PopUpHandler to adjust the position using the popUpOffset
+            if (hitCollider.TryGetComponent(out PopUpHandler popUpHandler))
+            {
+                // Adjust the target position by adding the popUpOffset
+                targetPosition += popUpHandler.popUpOffset;
+            }
+
+            // Calculate the squared distance between the current position and the adjusted target position
+            float dSqrToTarget = (targetPosition - currentPosition).sqrMagnitude;
+
+            // Find the closest interactable object based on the distance
+            if (dSqrToTarget < closestDistanceSqr)
+            {
+                closestDistanceSqr = dSqrToTarget;
+                closestInteractable = interactable;
+            }
         }
 
-        // Calculate the squared distance between the current position and the adjusted target position
-        float dSqrToTarget = (targetPosition - currentPosition).sqrMagnitude;
-
-        // Find the closest interactable object based on the distance
-        if (dSqrToTarget < closestDistanceSqr)
+        // If a new interactable object is found and it's different from the previous one
+        if (closestInteractable != null && closestInteractable != _previousInteractableInRange)
         {
-            closestDistanceSqr = dSqrToTarget;
-            closestInteractable = interactable;
+            // Hide the info for the previously detected interactable
+            _previousInteractableInRange?.HideInfo();
+
+            // Use the interactable's ShowInfo method
+            closestInteractable.ShowInfo();
+            Debug.Log("Interactable object in range: " + closestInteractable);
+
+            // Update the previous interactable reference
+            _previousInteractableInRange = closestInteractable;
+        }
+        else if (closestInteractable == null && _previousInteractableInRange != null)
+        {
+            // If no interactable is found, hide the previous interactable's info
+            _previousInteractableInRange.HideInfo();
+            Debug.Log("No interactable object in range");
+
+            _previousInteractableInRange = null;
         }
     }
-
-    // If a new interactable object is found and it's different from the previous one
-    if (closestInteractable != null && closestInteractable != _previousInteractableInRange)
-    {
-        // Hide the info for the previously detected interactable
-        _previousInteractableInRange?.HideInfo();
-
-        // Use the interactable's ShowInfo method
-        closestInteractable.ShowInfo();
-        Debug.Log("Interactable object in range: " + closestInteractable);
-
-        // Update the previous interactable reference
-        _previousInteractableInRange = closestInteractable;
-    }
-    else if (closestInteractable == null && _previousInteractableInRange != null)
-    {
-        // If no interactable is found, hide the previous interactable's info
-        _previousInteractableInRange.HideInfo();
-        Debug.Log("No interactable object in range");
-
-        _previousInteractableInRange = null;
-    }
-}
-
 
 
     private void CameraRotation()
@@ -590,12 +592,15 @@ private void DetectInteractableObjects()
 
 
             input.SetCursorState(true);
+            
             CutsceneManager.OnCutsceneStarted += () => isAnimationPlaying = true;
             CutsceneManager.OnCutsceneEnded += () => isAnimationPlaying = false;
             input.OnOpenHideTauntMenu += ToggleHideTauntMenuInput;
             input.OnInteract += InteractWithObject;
             input.OnMouseClick += ClickMouse;
             ReviveAnimation.OnPlayerRevived += OnPlayerSpawned;
+            UIEventManager.OnUIInteractionEnded += () => input.SetCursorState(true);
+            
             AssignAnimationIDs();
 
             _jumpTimeoutDelta = jumpTimeout;
@@ -624,4 +629,5 @@ private void DetectInteractableObjects()
     {
         return !isAnimationPlaying && !_isFollowing;
     }
+    
 }

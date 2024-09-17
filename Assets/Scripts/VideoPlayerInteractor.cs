@@ -9,6 +9,7 @@ public class VideoPlayerInteractor : MonoBehaviour, IInteractable
     [SerializeField] private PhotonView photonView;
     [SerializeField] private VideoPlayer videoPlayer;
     public bool IsInteractable { get; set; } = true;
+    public bool IsUiInteraction { get; set; }
     public string Description => "Press E to play the video";
 
     private bool _isPopUpShown;

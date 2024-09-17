@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.Video;
@@ -12,15 +11,13 @@ public class YoutubeVideoPlayer : MonoBehaviour, IInteractable
     [SerializeField] private RenderTexture renderTexture;
     [SerializeField] private Material videoDisplayMaterial;
     [SerializeField] private PhotonView view;
-    [SerializeField] private string _currentYoutubeVideoLink;
     [SerializeField] private PopUpHandler popUpHandler;
+    [SerializeField] private VideoPlayerUIManager uiManager;
+    private string _currentYoutubeVideoLink;
 
-    private void Update()
+    private void Start()
     {
-        if (Input.GetKeyDown(KeyCode.N))
-        {
-            PlayYoutubeVideoByLink(_currentYoutubeVideoLink);
-        }
+        uiManager.OnPlayVideoButtonPressed += s => view.RPC(nameof(PlayYoutubeVideoByLink), RpcTarget.All, s);
     }
 
     [PunRPC]
@@ -31,14 +28,20 @@ public class YoutubeVideoPlayer : MonoBehaviour, IInteractable
 
         if (!string.IsNullOrEmpty(videoId))
         {
+            uiManager.UpdateDebugInfo($"Playing YouTube video with ID: {videoId}");
+            
+
             AdjustRenderTexture(youtubeVideoLink);
 
             invidiousVideoPlayer.VideoId = videoId;
             await invidiousVideoPlayer.PlayVideoAsync();
+
+            // Sync the video start time across all users
+            view.RPC(nameof(SyncVideoTime), RpcTarget.All, videoPlayer.time);
         }
         else
         {
-            Debug.LogError("Invalid YouTube video link.");
+            uiManager.UpdateDebugInfo("Error: Invalid YouTube video link.");
         }
     }
 
@@ -84,13 +87,20 @@ public class YoutubeVideoPlayer : MonoBehaviour, IInteractable
         Debug.Log($"RenderTexture adjusted to: {renderTexture.width}x{renderTexture.height}");
     }
 
+    [PunRPC]
+    public void SyncVideoTime(double time)
+    {
+        videoPlayer.time = time;
+    }
+
     public bool IsInteractable { get; set; } = true;
-    public string Description  => "Press E to play Youtube Video";
+    public bool IsUiInteraction { get; set; } = true;
+    public string Description => "Press E to open YouTube Player";
 
     public void Interact(PhotonView photonView)
     {
-        HideInfo();
-        view.RPC(nameof(PlayYoutubeVideoByLink), RpcTarget.All, _currentYoutubeVideoLink);
+        ShowInfo();
+        uiManager.ShowUIPanel();
     }
 
     public void ShowInfo()

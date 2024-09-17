@@ -6,6 +6,7 @@ public abstract class AnimationManager : MonoBehaviour, IInteractable
 {
     [SerializeField] private PopUpHandler popUpHandler;
     public bool IsInteractable { get; set; } = true;
+    public bool IsUiInteraction { get; set; }
     public string Description => "Press E to revive players";
     [SerializeField] protected List<string> animationNames;
     [SerializeField] protected Animator animator;
