@@ -15,7 +15,7 @@ MonoBehaviour:
   AppSettings:
     AppIdRealtime: 076886b0-73d3-45b4-b09e-085acb6154bd
     AppIdFusion: 
-    AppIdChat: 
+    AppIdChat: 0acb3245-7833-4210-96d7-64dba61215b1
     AppIdVoice: 
     AppVersion: 
     UseNameServer: 1
@@ -95,5 +95,5 @@ MonoBehaviour:
   - SyncVideoTime
   - SetVideoTime
   DisableAutoOpenWizard: 1
-  ShowSettings: 0
+  ShowSettings: 1
   DevRegionSetOnce: 1

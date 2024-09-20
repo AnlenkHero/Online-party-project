@@ -6,86 +6,104 @@ using UnityEngine.EventSystems;
 
 public class VideoTimeSlider : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 {
-    [SerializeField] private PhotonView photonView;
+    public PhotonView photonView;  // Ensure this is assigned in the Inspector
     [SerializeField] private VideoPlayer videoPlayer;
     [SerializeField] private Slider timeSlider;
 
     public event System.Action<double> OnTimeUpdated;
     public event System.Action<double> OnSetTotalTime;
 
-    private bool isDragging = false;  // Track whether the user is currently dragging the slider
+    private bool isDragging = false;
+    private bool ignoreNetworkUpdate = false;
 
     private void Awake()
     {
-        // Set min/max values for the slider
+        // Set slider min and max values
         timeSlider.minValue = 0f;
-        timeSlider.maxValue = 1f;  // The slider's max value represents the normalized time (0.0 - 1.0)
+        timeSlider.maxValue = 1f;
 
-        // Add a listener for slider value changes
+        // Add listener for local slider changes
         timeSlider.onValueChanged.AddListener(OnSliderValueChangedLocal);
     }
 
     private void Update()
     {
-        // Only update the slider if not dragging and the video is playing
-        if (!isDragging && videoPlayer.isPlaying && videoPlayer.length > 0)
+        // Only update the slider if not dragging and video is playing
+        if (!isDragging && videoPlayer.isPlaying)
         {
-            // Calculate and set the slider value based on video time
-            timeSlider.value = (float)(videoPlayer.time / videoPlayer.length);
+            // Update the slider value based on the video time
+            float normalizedTime = 0f;
+            if (videoPlayer.length > 0)
+                normalizedTime = (float)(videoPlayer.time / videoPlayer.length);
+
+            // Only update if the slider value is different to avoid unnecessary updates
+            if (!Mathf.Approximately(timeSlider.value, normalizedTime))
+            {
+                ignoreNetworkUpdate = true;  // Prevent reacting to this change in OnValueChanged
+                timeSlider.value = normalizedTime;
+                ignoreNetworkUpdate = false;
+            }
+
+            // Update the current time display
             OnTimeUpdated?.Invoke(videoPlayer.time);
         }
     }
 
-    // Called when the slider value changes (user drags the slider)
     private void OnSliderValueChangedLocal(float value)
     {
-        if (isDragging  && videoPlayer.length > 0)
+        if (ignoreNetworkUpdate)
+            return;  // Ignore updates caused by network synchronization
+
+        if (isDragging)
         {
-            // Calculate the new video time based on the slider value and update the video locally
+            // Update the video time locally
             double newTime = value * videoPlayer.length;
             videoPlayer.time = newTime;
-
-            // We do not broadcast the RPC here during dragging to avoid conflicting updates
         }
     }
 
-    // Called when the user starts dragging the slider
     public void OnBeginDrag(PointerEventData eventData)
     {
-        isDragging = true;  // Set dragging flag
-        videoPlayer.Pause();  // Pause the video while dragging
+        isDragging = true;
+        videoPlayer.Pause();
     }
 
-    // Called when the user ends dragging the slider
     public void OnEndDrag(PointerEventData eventData)
     {
-        isDragging = false;  // Reset dragging flag
-        videoPlayer.Play();  // Resume the video
+        isDragging = false;
+        videoPlayer.Play();
 
-        // Once dragging ends, sync the final video time with all other players
-        photonView.RPC(nameof(SetTimeForAll), RpcTarget.All, videoPlayer.time);
+        // After dragging, synchronize the new time with all players
+        double newTime = videoPlayer.time;
+        photonView.RPC(nameof(SyncVideoTime), RpcTarget.OthersBuffered, newTime);
     }
 
-    // Called via RPC to update the time for all players
     [PunRPC]
-    public void SetTimeForAll(double newTime)
+    private void SyncVideoTime(double newTime, PhotonMessageInfo info)
     {
-        // Only update if the user is not currently dragging to avoid conflicts
-        if (!isDragging && videoPlayer.length > 0)
+        // If we're currently dragging, ignore incoming network updates
+        if (isDragging)
+            return;
+
+        // Update the video time and slider value
+        videoPlayer.time = newTime;
+        if (videoPlayer.length > 0)
         {
-            videoPlayer.time = newTime;
-            timeSlider.value = (float)(newTime / videoPlayer.length);  // Update the slider for all users
+            ignoreNetworkUpdate = true;  // Prevent reacting to this change in OnValueChanged
+            timeSlider.value = (float)(newTime / videoPlayer.length);
+            ignoreNetworkUpdate = false;
         }
+
+        // Update the current time display
+        OnTimeUpdated?.Invoke(newTime);
     }
 
-    // Called via RPC to set the total video time
     [PunRPC]
     public void SetTotalTime(double totalTime)
     {
         OnSetTotalTime?.Invoke(totalTime);
     }
 
-    // Called via RPC to reset the video time
     [PunRPC]
     public void ResetTime()
     {
