@@ -17,3 +17,6 @@ Project is not refactored well and has simplest ui possible.
 Launch game come close to TV and press interaction button. Also you can lie down to maximize view.
 
 2.To watch youtube videos find interactor for youtube videos and use link for video/shorts.
+
+3.To use invidious server serach here https://api.invidious.io/ 
+4.To host watch documentation https://docs.invidious.io/instances/
