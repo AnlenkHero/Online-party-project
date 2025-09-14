@@ -2,8 +2,8 @@
 
 ## About the Project
 
-This project provides convenient tools to create interactive movies. Also project uses invideos to watch youtube videos like in GMOD.
-Sometimes invideo server might not work so you need to host own or search for available. 
+This project provides convenient tools to create interactive movies. Also project uses Invidious  to watch youtube videos like in GMOD.
+Sometimes Invidious  server might not work so you need to host own or search for available. 
 For easier creation of interactive movie project uses xNode.
 Project has also some practices of syncing events for all users like: cutscene, respawn with other character, animations, interactiv move and synced player for youtube videos.
 Supports not only YT videos and also shorts(rescales resolution).
