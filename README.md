@@ -15,4 +15,5 @@ Project is not refactored well and has simplest ui possible.
 
 1.If you want interactive movie you need to setup movie in editor using scriptable objects using xNode or use commit version without xNode.
 Launch game come close to TV and press interaction button. Also you can lie down to maximize view.
-2. To watch youtube videos find interactor for youtube videos and use link for video/shorts.
+
+2.To watch youtube videos find interactor for youtube videos and use link for video/shorts.
